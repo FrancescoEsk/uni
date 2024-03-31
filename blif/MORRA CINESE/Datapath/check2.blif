@@ -1,4 +1,4 @@
-# da output manche (v1 o v2)
+# multiplexer check2 che da output manche (v1 o v2) in base a in (proveniente da check 1)
 .model check2
 .inputs in
 .outputs o1 o0
