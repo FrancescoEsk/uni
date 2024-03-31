@@ -1,3 +1,4 @@
+# calcola se la manche è stata vinta da 1 o meno
 .model manche
 .inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0
 .outputs out
