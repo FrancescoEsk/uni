@@ -2,11 +2,11 @@
 .inputs i4 i3 i2 i1 i0
 .outputs o4 o3 o2 o1 o0
 
-.subckt registro1bit A=i0 O=o0
-.subckt registro1bit A=i1 O=o1
-.subckt registro1bit A=i2 O=o2
-.subckt registro1bit A=i3 O=o3
-.subckt registro1bit A=i4 O=o4
+.subckt registro1bit a=i0 out=o0
+.subckt registro1bit a=i1 out=o1
+.subckt registro1bit a=i2 out=o2
+.subckt registro1bit a=i3 out=o3
+.subckt registro1bit a=i4 out=o4
 
 .search registro1bit.blif
 

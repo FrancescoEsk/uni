@@ -3,8 +3,8 @@
 .outputs out
 
 # costanti
-.subckt zero o=Z
-.subckt uno o=U
+.subckt zero out=Z
+.subckt uno out=U
 
 # ramo sx
 .subckt equal2bit a1=U a0=Z b1=PRIMO1 b0=PRIMO0 out=e1

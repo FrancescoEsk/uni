@@ -1,7 +1,7 @@
 .model uno
-.outputs o
+.outputs out
 
-.names o
+.names out
 1
 .end
 

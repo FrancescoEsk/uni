@@ -1,7 +1,7 @@
 .model zero
-.outputs o
+.outputs out
 
-.names o
+.names out
 .end
 
 

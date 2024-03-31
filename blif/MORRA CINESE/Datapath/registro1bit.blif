@@ -1,7 +1,7 @@
 .model registro1bit
-.inputs A
-.outputs O
+.inputs a
+.outputs out
 
-.latch A O re NIL 0
+.latch a out re NIL 0
 
 .end
