@@ -1,0 +1,20 @@
+.model sottrazione
+
+.inputs a1 a0 b1 b0
+.outputs r1 r0
+
+.subckt zero o=Z 
+.subckt uno o=U
+
+.subckt inversione x1=b1 x0=b0 y1=i1 y0=i0 # inversione bit da sottrarre
+.subckt somma2bit a1=i1 a0=i0 b1=Z b0=U cout=cout s1=o1 s0=o0 # aggiungo 1 (CA2)
+.subckt somma2bit a1=a1 a0=a0 b1=o1 b0=o0 s1=r1 s0=r0 # faccio la somma tra il primo numero e il secondo invertito
+
+.search somma2bit.blif
+.search inversione.blif
+.search zero.blif
+.search uno.blif
+
+.end
+
+

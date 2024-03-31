@@ -1,0 +1,14 @@
+.model inversione
+
+.inputs x1 x0
+.outputs y1 y0
+
+.names x1 y1
+0 1
+
+.names x0 y0
+0 1
+
+.end
+
+

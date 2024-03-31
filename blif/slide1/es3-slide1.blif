@@ -1,0 +1,17 @@
+.model fzbool 
+.inputs x y z
+.outputs u1 u2
+
+.names x y z u1
+101 1
+001 1
+110 1
+111 1
+
+.names x y z u2
+010 1
+100 1
+001 1
+111 1
+
+.end
