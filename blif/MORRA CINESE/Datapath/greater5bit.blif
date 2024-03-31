@@ -8,7 +8,7 @@
 .subckt xor A=A1 B=B1 X=X1
 .subckt xor A=A0 B=B0 X=X0
 
-.names A4 A3 A2 A1 A0 X4 X3 X2 X1 X0 C O
+.names A4 A3 A2 A1 A0 X4 X3 X2 X1 X0 O
 1----1---- 1
 -1---01--- 1
 --1--001-- 1
