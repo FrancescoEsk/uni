@@ -1,0 +1,40 @@
+.model manche
+.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0
+.outputs out
+
+# costanti
+.subckt zero o=Z
+.subckt uno o=U
+
+# ramo sx
+.subckt equal2bit a1=U a0=Z b1=PRIMO1 b0=PRIMO0 out=e1
+.subckt equal2bit a1=Z a0=U b1=SECONDO1 b0=SECONDO0 out=e2
+# and ramo sx
+.subckt and I1=e1 I2=e2 out=sx
+
+# ramo centrale
+.subckt equal2bit a1=Z a0=U b1=PRIMO1 b0=PRIMO0 out=e3
+.subckt equal2bit a1=U a0=U b1=SECONDO1 b0=SECONDO0 out=e4
+# and ramo centrale
+.subckt and I1=e3 I2=e4 out=ct
+
+# ramo dx
+.subckt equal2bit a1=U a0=U b1=PRIMO1 b0=PRIMO0 out=e5
+.subckt equal2bit a1=U a0=Z b1=SECONDO1 b0=SECONDO0 out=e6
+# and ramo dx
+.subckt and I1=e5 I2=e6 out=dx
+
+# or tra sx e centrale
+.subckt or I1=sx I2=ct out=r
+
+# or tra r (sx e centrale ) e dx
+.subckt or I1=r I2=dx out=out
+
+
+.search ./componenti/equal2bit.blif
+.search ./componenti/and.blif
+.search ./componenti/or.blif
+.search ./componenti/zero.blif
+.search ./componenti/uno.blif
+
+.end
