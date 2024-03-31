@@ -1,4 +1,4 @@
-.model REGISTRO1
+.model registro1bit
 .inputs A
 .outputs O
 

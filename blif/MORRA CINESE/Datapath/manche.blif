@@ -31,10 +31,10 @@
 .subckt or I1=r I2=dx out=out
 
 
-.search ./componenti/equal2bit.blif
-.search ./componenti/and.blif
-.search ./componenti/or.blif
-.search ./componenti/zero.blif
-.search ./componenti/uno.blif
+.search equal2bit.blif
+.search and.blif
+.search or.blif
+.search zero.blif
+.search uno.blif
 
 .end

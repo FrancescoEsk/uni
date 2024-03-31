@@ -1,0 +1,16 @@
+.model greaterEqual5bit
+.inputs a4 a3 a2 a1 a0 b4 b3 b2 b1 b0
+.outputs O
+
+.subckt equal5bit a4=a4 a3=a3 a2=a2 a1=a1 a0=a0 b4=b4 b3=b3 b2=b2 b1=b1 b0=b0 out=c0
+.subckt greater5bit a4=a4 a3=a3 a2=a2 a1=a1 a0=a0 b4=b4 b3=b3 b2=b2 b1=b1 b0=b0 out=c1
+
+.search equal5bit.blif
+.search greater5bit.blif
+
+.names c1 c0 O
+10 1
+01 1
+11 1
+
+.end

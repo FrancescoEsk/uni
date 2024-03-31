@@ -1,4 +1,4 @@
-.model somma
+.model somma1bit
 
 .inputs a b cin
 .outputs cout s
