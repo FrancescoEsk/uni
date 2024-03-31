@@ -1,0 +1,12 @@
+# da output manche (v1 o v2)
+.model check2
+.inputs in
+.outputs o1 o0
+
+.names in o1
+1 1
+
+.names in o0
+0 1
+
+.end
