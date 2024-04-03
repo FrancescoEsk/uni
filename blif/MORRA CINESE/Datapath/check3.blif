@@ -1,7 +1,7 @@
 # multiplexer check3 che fa passare a1 e a0 se il valore vale 0, altrimenti se s vale 1 passa 11
 # manca da calcolare il valore di s quando verrà composto il datapath
 .model check3
-.inputs s a1 a0
+.inputs a1 a0 s
 .outputs o1 o0
 
 # b vale sempre 1 1
@@ -20,11 +20,11 @@
 # 0  1  1  1  1     1  1
 
 .names a1 a0 b1 b0 s o1
-1011- 1
-01111 1
+10110 1
+--111 1
 
 .names a1 a0 b1 b0 s o0
-10111 1
-0111- 1
+01110 1
+--111 1
 
 .end
