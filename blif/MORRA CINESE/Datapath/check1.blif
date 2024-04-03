@@ -31,7 +31,6 @@
 # or tra r (sx e centrale ) e dx
 .subckt or I1=r I2=dx out=out
 
-
 .search equal2bit.blif
 .search and.blif
 .search or.blif

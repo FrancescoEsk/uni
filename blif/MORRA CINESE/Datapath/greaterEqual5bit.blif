@@ -1,6 +1,6 @@
 .model greaterEqual5bit
 .inputs a4 a3 a2 a1 a0 b4 b3 b2 b1 b0
-.outputs O
+.outputs out
 
 .subckt equal5bit a4=a4 a3=a3 a2=a2 a1=a1 a0=a0 b4=b4 b3=b3 b2=b2 b1=b1 b0=b0 out=c0
 .subckt greater5bit a4=a4 a3=a3 a2=a2 a1=a1 a0=a0 b4=b4 b3=b3 b2=b2 b1=b1 b0=b0 out=c1
@@ -8,7 +8,10 @@
 .search equal5bit.blif
 .search greater5bit.blif
 
-.names c1 c0 O
+# c0 e' l'output dell'uguale, c1 e' l'output del maggiore
+# faccio la tabella di verita' dell'or. se uno dei due casi e' vero, allora output vale 1
+
+.names c1 c0 out
 10 1
 01 1
 11 1

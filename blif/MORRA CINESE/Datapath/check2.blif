@@ -3,6 +3,10 @@
 .inputs in
 .outputs o1 o0
 
+# in   o1 o0
+# 1    1  0
+# 0    0  1
+
 .names in o1
 1 1
 
