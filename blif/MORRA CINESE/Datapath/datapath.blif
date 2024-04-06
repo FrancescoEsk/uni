@@ -1,0 +1,12 @@
+.model datapath
+.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 INIZIO
+.outputs NO_VALID COUNT_MIN COUNT_MAX
+
+
+# calcolo manche fino al pareggio (manca non valida)
+.subckt manche PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 o1=m1 o0=m0
+.search manche.blif
+
+
+
+.end
