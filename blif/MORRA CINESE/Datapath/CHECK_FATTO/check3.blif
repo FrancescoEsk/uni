@@ -5,8 +5,7 @@
 .outputs o1 o0
 
 # b vale sempre 1 1
-.subckt uno out=b1
-.subckt uno out=b0
+.subckt uno out=U
 
 .search uno.blif
 
@@ -19,11 +18,11 @@
 # 1  0  1  1  1     1  1
 # 0  1  1  1  1     1  1
 
-.names a1 a0 b1 b0 s o1
+.names a1 a0 U U s o1
 10110 1
 --111 1
 
-.names a1 a0 b1 b0 s o0
+.names a1 a0 U U s o0
 01110 1
 --111 1
 
