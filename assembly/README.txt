@@ -14,7 +14,7 @@ gbd --> per entrare nella shell di degub
 
 file hello.x --> lo carico
 
-break <file_sorgente>.<numero_riga> --> imposta un breakpoint alla riga specificata 
+break <file_sorgente.s>:<numero_riga> --> imposta un breakpoint alla riga specificata 
 
 list  --> (con file caricato) stampa le righe del file caricato
 
