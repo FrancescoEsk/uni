@@ -1,4 +1,4 @@
-.model not
+.model not2bit
 .inputs in
 .outputs out
 
