@@ -1,0 +1,29 @@
+.model vincitoreprecedente
+.inputs outm1 outm0 INIZIO
+.outputs o1 o0
+
+.subckt registro2bit i1=o1 i0=o0 o1=VINCITORE_PRECEDENTE1 o0=VINCITORE_PRECEDENTE0
+
+.subckt zero out=Z
+.subckt uno out=U
+
+.search registro2bit.blif
+.search zero.blif
+.search uno.blif
+
+# 10 -- -- -- 00 | 10
+# 01 -- -- -- 00 | 01
+# 11 -- -- -- 00 | 11
+# -- 10 -- -- 10 | 10
+# -- -- 01 -- 01 | 01
+# -- -- -- 11 11 | 11
+
+.names VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 U Z Z U U U outm1 outm0 INIZIO o1
+1-100111000 1
+--1001111-0 1
+
+.names VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 U Z Z U U U outm1 outm0 INIZIO o0
+-1100111000 1
+--100111-10 1
+
+.end

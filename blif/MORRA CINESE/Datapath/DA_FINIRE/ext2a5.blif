@@ -1,0 +1,11 @@
+.model ext2a5
+.inputs i1 i0
+.outputs o4 o3 o2 o1 o0
+
+.names i1 i0 o1
+1- 1
+
+.names i1 i0 o0
+-1 1
+
+.end

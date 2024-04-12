@@ -1,0 +1,37 @@
+.model count
+.inputs outm1 outm0 INIZIO
+.outputs o4 o3 o2 o1 o0
+
+.subckt zero out=Z
+
+.subckt equal2bit a1=outm1 a0=outm0 b1=Z b0=Z out=c
+.subckt not in=c out=d
+.subckt ext1a5 in=d o4=d4 o3=d3 o2=d2 o1=d1 o0=d0
+
+.subckt somma5bit a4=d4 a3=d3 a2=d2 a1=d1 a0=d0 b4=o4 b3=o3 b2=o2 b1=o1 b0=o0 cout=cout s4=e4 s3=e3 s2=e2 s1=e1 s0=e0
+
+.names e4 e3 e2 e1 e0 INIZIO f4
+1----0 1
+
+.names e4 e3 e2 e1 e0 INIZIO f3
+-1---0 1
+
+.names e4 e3 e2 e1 e0 INIZIO f2
+--1--0 1
+
+.names e4 e3 e2 e1 e0 INIZIO f1
+---1-0 1
+
+.names e4 e3 e2 e1 e0 INIZIO f0
+----10 1
+
+.subckt registro5bit i4=f4 i3=f3 i2=f2 i1=f1 i0=f0 o4=o4 o3=o3 o2=o2 o1=o1 o0=o0
+
+.search registro5bit.blif
+.search somma5bit.blif
+.search ext1a5.blif
+.search not.blif
+.search zero.blif
+.search equal2bit.blif
+
+.end
