@@ -9,7 +9,7 @@ ld -o hello hello.o
 ld -o hello.x hello.o
 
 
-COME DEBUGGARE FILE ASSEMBLY (GIA' ESEGUIBILI) (VEDI gbd.pdf)
+COME DEBUGGARE FILE ASSEMBLY (GIA' ESEGUIBILI) (VEDI gdb.pdf)
 gbd --> per entrare nella shell di degub 
 
 file hello.x --> lo carico
