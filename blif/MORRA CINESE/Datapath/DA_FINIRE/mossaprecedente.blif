@@ -1,0 +1,29 @@
+.model mossaprecedente
+.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm2 INIZIO
+.outputs o1 o0
+
+.subckt uno out=U
+.subckt registro2bit i1=o1 i0=o0 o1=m1 o0=m0
+
+.search uno.blif
+.search registro2bit.blif
+
+# SE INIZIO VALE 1, OUTPUT DEL COMPONENTE (E QUINDI IL REGISTRO) DIVENTA 0, RESETTANDOLO A 00
+# 00 = PASSA IL REGISTRO
+# 01 = PASSA SECONDO
+# 10 = PASSA PRIMO
+# 11 = PASSA 11
+
+.names m1 m0 U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm2 INIZIO o1
+1-11----000 1
+--11--1-010 1
+--111---100 1
+--11----110 1
+
+.names m1 m0 U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm2 INIZIO o0
+-111----000 1
+--11---1010 1
+--11-1--100 1
+--11----110 1
+
+.end
