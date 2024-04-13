@@ -4,6 +4,7 @@
 
 .subckt registro2bit i1=o1 i0=o0 o1=VINCITORE_PRECEDENTE1 o0=VINCITORE_PRECEDENTE0
 
+# costanti
 .subckt zero out=Z
 .subckt uno out=U
 

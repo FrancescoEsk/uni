@@ -10,6 +10,7 @@
 .subckt check1 PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 out=c1
 .subckt check2 in=c1 o1=c21 o0=c20
 .subckt check3 s=s1 a1=c21 a0=c20 o1=o1 o0=o0
+# output su o1 e o0
 
 .search equal2bit.blif
 .search check1.blif
