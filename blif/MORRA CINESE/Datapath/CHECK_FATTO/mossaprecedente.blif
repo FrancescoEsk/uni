@@ -1,5 +1,5 @@
 .model mossaprecedente
-.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm2 INIZIO
+.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0 INIZIO
 .outputs o1 o0
 
 .subckt uno out=U
@@ -14,13 +14,13 @@
 # 10 = PASSA PRIMO
 # 11 = PASSA 11
 
-.names m1 m0 U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm2 INIZIO o1
+.names m1 m0 U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0 INIZIO o1
 1-11----000 1
 --11--1-010 1
 --111---100 1
 --11----110 1
 
-.names m1 m0 U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm2 INIZIO o0
+.names m1 m0 U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0 INIZIO o0
 -111----000 1
 --11---1010 1
 --11-1--100 1
