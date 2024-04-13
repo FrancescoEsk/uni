@@ -9,7 +9,7 @@
 .subckt equal2bit a1=SECONDO1 a0=SECONDO0 b1=Z b0=Z out=c1
 .subckt or I1=c0 I2=c1 out=c3
 # equal tra multiplexer e registro mossa precedente
-.subckt equal2bit a1=o1 a0=o0 b1=MOSSA_PREC1 b2=MOSSA_PREC0 out=c4
+.subckt equal2bit a1=o1 a0=o0 b1=MOSSA_PREC1 b0=MOSSA_PREC0 out=c4
 # or tra ramo sx e ramo dx
 .subckt or I1=c3 I2=c4 out=out
 
