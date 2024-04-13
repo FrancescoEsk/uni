@@ -2,6 +2,7 @@
 .inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 INIZIO
 .outputs o4 o3 o2 o1 o0
 
+# costanti
 .subckt zero out=Z
 .subckt uno out=U
 
@@ -14,30 +15,29 @@
 .subckt somma5bit a4=d4 a3=d3 a2=d2 a1=d1 a0=d0 b4=Z b3=Z b2=U b1=Z b0=Z cout=cout2 s4=f4 s3=f3 s2=f2 s1=f1 s0=f0
 # risultato somma in f
 
+# risultato del multiplexer come input del registro e output del modulo
+.subckt registro5bit i4=o4 i3=o3 i2=o2 i1=o1 i0=o0 o4=g4 o3=g3 o2=g2 o1=g1 o0=g0
 
 # input multiplexer: risultato somma / registro
-.names cout1 cout2 f4 f3 f2 f1 f0 o4 o3 o2 o1 o0 INIZIO g4
+.names cout1 cout2 f4 f3 f2 f1 f0 g4 g3 g2 g1 g0 INIZIO o4
 001---------1 1
 00-----1----0 1
 
-.names cout1 cout2 f4 f3 f2 f1 f0 o4 o3 o2 o1 o0 INIZIO g3
+.names cout1 cout2 f4 f3 f2 f1 f0 g4 g3 g2 g1 g0 INIZIO o3
 00-1--------1 1
 00------1---0 1
 
-.names cout1 cout2 f4 f3 f2 f1 f0 o4 o3 o2 o1 o0 INIZIO g2
+.names cout1 cout2 f4 f3 f2 f1 f0 g4 g3 g2 g1 g0 INIZIO o2
 00--1-------1 1
 00-------1--0 1
 
-.names cout1 cout2 f4 f3 f2 f1 f0 o4 o3 o2 o1 o0 INIZIO g1
+.names cout1 cout2 f4 f3 f2 f1 f0 g4 g3 g2 g1 g0 INIZIO o1
 00---1------1 1
 00--------1-0 1
 
-.names cout1 cout2 f4 f3 f2 f1 f0 o4 o3 o2 o1 o0 INIZIO g0
+.names cout1 cout2 f4 f3 f2 f1 f0 g4 g3 g2 g1 g0 INIZIO o0
 00----1-----1 1
 00---------10 1
-
-# risultato del multiplexer come input del registro, e output registro 
-.subckt registro5bit i4=g4 i3=g3 i2=g2 i1=g1 i0=g0 o4=o4 o3=o3 o2=o2 o1=o1 o0=o0
 
 .search registro5bit.blif
 .search zero.blif
