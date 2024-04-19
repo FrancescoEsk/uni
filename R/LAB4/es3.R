@@ -10,6 +10,6 @@ p_teoriche <- as.data.frame(dbinom(x = 0:9, size = 9, prob = 0.8))
 
 
 ggplot(data = df, aes(x = numeri)) + 
-  geom_bar() + 
+  geom_bar(aes(y = after_stat(prop))) + 
   labs(x = "Successi", y="Frequenza") +
   geom_point(data = p_teoriche, aes(x = 0:9, y = p), color="red")
