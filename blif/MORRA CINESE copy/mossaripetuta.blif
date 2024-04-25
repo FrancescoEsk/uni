@@ -1,0 +1,30 @@
+.model mossaripetuta
+.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 MOSSA_PREC1 MOSSA_PREC0 INIZIO
+.outputs out
+
+.subckt zero out=Z
+
+# prima parte del ramo sx (controllo se uno dei due e' 00)
+.subckt equal2bit a1=PRIMO1 a0=PRIMO0 b1=Z b0=Z out=c0
+.subckt equal2bit a1=SECONDO1 a0=SECONDO0 b1=Z b0=Z out=c1
+.subckt or I1=c0 I2=c1 out=c3
+# equal tra multiplexer e registro mossa precedente
+.subckt equal2bit a1=o1 a0=o0 b1=MOSSA_PREC1 b0=MOSSA_PREC0 out=c4
+# or tra ramo sx e ramo dx
+.subckt or I1=c3 I2=c4 out=out
+
+.search equal2bit.blif
+.search or.blif
+.search zero.blif
+
+.names PRIMO1 PRIMO0 SECONDO1 SECONDO0 Z Z VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 INIZIO o1
+--1-00010 1
+1---00100 1
+----00--1 1
+
+.names PRIMO1 PRIMO0 SECONDO1 SECONDO0 Z Z VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 INIZIO o0
+---100010 1
+-1--00100 1
+----00--1 1
+
+.end

@@ -1,0 +1,31 @@
+.model check4
+.inputs a1 a0 PRIMO1 PRIMO0 SECONDO1 SECONDO0 VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 MOSSA_PREC1 MOSSA_PREC0 INIZIO
+.outputs o1 o0
+
+# costanti
+.subckt zero out=Z
+
+# calcolo s (da passare come parametri anche i due registri)
+.subckt mossaripetuta PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 VINCITORE_PRECEDENTE1=VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0=VINCITORE_PRECEDENTE0 MOSSA_PREC1=MOSSA_PREC1 MOSSA_PREC0=MOSSA_PREC0 INIZIO=INIZIO out=s
+
+.search mossaripetuta.blif
+.search zero.blif
+
+# se s vale 1, passa b, altrimenti passa a
+
+# a1 a0 b1 b0 s     o1 o0
+
+# 1  0  0  0  0     1  0
+# 0  1  0  0  0     0  1
+# 1  1  0  0  0     1  1
+# 1  0  0  0  1     0  0
+# 0  1  0  0  1     0  0
+# 1  1  0  0  1     0  0
+
+.names a1 a0 Z Z s o1
+1-000 1
+
+.names a1 a0 Z Z s o0
+-1000 1
+
+.end
