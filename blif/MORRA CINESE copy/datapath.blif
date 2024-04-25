@@ -1,13 +1,13 @@
 .model datapath
-.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 INIZIO m1 m0
+.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 INIZIO outm1 outm0
 .outputs NO_VALID COUNT_MIN COUNT_MAX
 
 # costanti
 .subckt zero out=Z
 .subckt uno out=U
 
-# eseguo ultimo check per ottenere l'output della manche ( outm1 e outm0 )
-.subckt check4 a1=m1 a0=m0 PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 VINCITORE_PRECEDENTE1=VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0=VINCITORE_PRECEDENTE0 MOSSA_PREC1=MOSSA_PREC1 MOSSA_PREC0=MOSSA_PREC0 INIZIO=INIZIO o1=outm1 o0=outm0
+# calcolo output NO_VALID
+.subckt mossaripetuta PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 VINCITORE_PRECEDENTE1=VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0=VINCITORE_PRECEDENTE0 MOSSA_PREC1=MOSSA_PREC1 MOSSA_PREC0=MOSSA_PREC0 INIZIO=INIZIO out=NA_VALID
 
 # calcolo registro mossa precedente ( MOSSA_PREC1 E MOSSA_PREC0 )
 .subckt mossaprecedente PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=MOSSA_PREC1 o0=MOSSA_PREC0
@@ -27,10 +27,6 @@
 # calcolo output COUNT_MAX
 .subckt greaterEqual5bit a4=COUNT4 a3=COUNT3 a2=COUNT2 a1=COUNT1 a0=COUNT0 b4=MAX4 b3=MAX3 b2=MAX2 b1=MAX1 b0=MAX0 out=COUNT_MAX
 
-# calcolo output NO_VALID
-.names outm1 outm0 COUNT4 COUNT3 COUNT2 COUNT1 COUNT0 MAX4 MAX3 MAX2 MAX1 MAX0 NO_VALID
-00---------- 1
-
 .search uno.blif
 .search zero.blif
 .search greaterEqual5bit.blif
@@ -38,6 +34,6 @@
 .search count.blif
 .search vincitoreprecedente.blif
 .search mossaprecedente.blif
-.search check4.blif
+.search mossaripetuta.blif
 
 .end
