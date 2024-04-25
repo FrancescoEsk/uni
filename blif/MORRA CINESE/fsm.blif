@@ -12,9 +12,9 @@
 
 # ------- STATO DI INIZIO ------
 # RIENTRO
-----1--- INIZIO INIZIO 0000
+----0--- INIZIO INIZIO 0000
 # VADO A PAREGGIO
-----0--- INIZIO PAREGGIO 0000
+----1--- INIZIO PAREGGIO 0000
 # -------------------------------
 
 # ----------- STATO DI PAREGGIO --------- 
