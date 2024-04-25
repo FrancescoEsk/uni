@@ -39,6 +39,5 @@
 .search vincitoreprecedente.blif
 .search mossaprecedente.blif
 .search check4.blif
-.search manche.blif
 
 .end
