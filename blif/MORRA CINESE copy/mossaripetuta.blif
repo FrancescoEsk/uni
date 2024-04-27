@@ -2,8 +2,6 @@
 .inputs MOSSA_PREC1 MOSSA_PREC0 e1 e0 c3
 .outputs out
 
-.subckt zero out=Z
-
 # equal tra multiplexer e registro mossa precedente
 .subckt equal2bit a1=e1 a0=e0 b1=MOSSA_PREC1 b0=MOSSA_PREC0 out=c4
 # or tra ramo sx e ramo dx
@@ -11,6 +9,5 @@
 
 .search equal2bit.blif
 .search or.blif
-.search zero.blif
 
 .end
