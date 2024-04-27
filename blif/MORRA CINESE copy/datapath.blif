@@ -15,7 +15,7 @@
 
 # calcolo registro mossa precedente ( MOSSA_PREC1 E MOSSA_PREC0 )
 .subckt muxMossaprecedente PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 outm1=outm1 outm0=outm0 o1=muxP1 o0=muxP0
-.subckt mossaprecedente a1=muxP1 a0=muxP0 INIZIO=INIZIO outm1=outm1 outm0=outm0 o1=MOSSA_PREC1 o0=MOSSA_PREC0
+.subckt mossaprecedente a1=muxP1 a0=muxP0 outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=MOSSA_PREC1 o0=MOSSA_PREC0
 
 # calcolo registro vincitore precedente ( VINCITORE_PRECEDENTE1 e VINCITORE_PRECEDENTE0 )
 .subckt vincitoreprecedente outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=VINCITORE_PRECEDENTE1 o0=VINCITORE_PRECEDENTE0
