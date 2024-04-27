@@ -1,13 +1,9 @@
 .model mossaripetuta
-.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 MOSSA_PREC1 MOSSA_PREC0 e1 e0
+.inputs MOSSA_PREC1 MOSSA_PREC0 e1 e0 c3
 .outputs out
 
 .subckt zero out=Z
 
-# prima parte del ramo sx (controllo se uno dei due e' 00)
-.subckt equal2bit a1=PRIMO1 a0=PRIMO0 b1=Z b0=Z out=c0
-.subckt equal2bit a1=SECONDO1 a0=SECONDO0 b1=Z b0=Z out=c1
-.subckt or I1=c0 I2=c1 out=c3
 # equal tra multiplexer e registro mossa precedente
 .subckt equal2bit a1=e1 a0=e0 b1=MOSSA_PREC1 b0=MOSSA_PREC0 out=c4
 # or tra ramo sx e ramo dx

@@ -6,10 +6,12 @@
 .subckt zero out=Z
 .subckt uno out=U
 
+# calcola se primo o secondo inseriscono 00
+.subckt mossazero PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 out=mz
 # multiplexer per NO_VALID
 .subckt muxMossaripetuta PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 VINCITORE_PRECEDENTE1=VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0=VINCITORE_PRECEDENTE0 o1=muxM1 o0=muxM0
 # calcolo output NO_VALID
-.subckt mossaripetuta PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 MOSSA_PREC1=MOSSA_PREC1 MOSSA_PREC0=MOSSA_PREC0 e1=muxM1 e0=muxM0 out=outNv
+.subckt mossaripetuta MOSSA_PREC1=MOSSA_PREC1 MOSSA_PREC0=MOSSA_PREC0 e1=muxM1 e0=muxM0 c3=mz out=outNv
 
 # calcolo registro mossa precedente ( MOSSA_PREC1 E MOSSA_PREC0 )
 .subckt mossaprecedente PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=MOSSA_PREC1 o0=MOSSA_PREC0
@@ -42,5 +44,6 @@
 .search mossaprecedente.blif
 .search mossaripetuta.blif
 .search muxMossaripetuta.blif
+.search mossazero.blif
 
 .end
