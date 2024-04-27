@@ -41,5 +41,6 @@
 .search vincitoreprecedente.blif
 .search mossaprecedente.blif
 .search mossaripetuta.blif
+.search muxMossaripetuta.blif
 
 .end
