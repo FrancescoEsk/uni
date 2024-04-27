@@ -7,7 +7,7 @@
 # prima parte del ramo sx (controllo se uno dei due e' 00)
 .subckt equal2bit a1=PRIMO1 a0=PRIMO0 b1=Z b0=Z out=c0
 .subckt equal2bit a1=SECONDO1 a0=SECONDO0 b1=Z b0=Z out=c1
-.subckt or I1=c0 I2=c1 out=c3
+.subckt or I1=c0 I2=c1 out=out
 
 .search equal2bit.blif
 .search or.blif
