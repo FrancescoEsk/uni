@@ -1,5 +1,5 @@
 .model mossaprecedente
-.inputs a1 a0 INIZIO
+.inputs a1 a0 INIZIO outm1 outm0
 .outputs o1 o0
 
 .subckt registro2bit i1=o1 i0=o0 o1=b1 o0=b0
@@ -8,12 +8,14 @@
 
 # SE INIZIO ATTIVO, METTO 00, ALTRIMENTI PASSA IL MUX PRIMA
 
-.names a1 a0 b1 b0 INIZIO o1
-1---0 1
---1-0 1
+.names a1 a0 b1 b0 outm1 outm0 INIZIO o1
+1----10 1
+1---1-0 1
+--1-000 1
 
-.names a1 a0 b1 b0 INIZIO o0
--1--0 1
----10 1
+.names a1 a0 b1 b0 outm1 outm0 INIZIO o0
+-1---10 1
+-1--1-0 1
+---1000 1
 
 .end
