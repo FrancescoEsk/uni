@@ -1,51 +1,116 @@
 .model datapath
 .inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 INIZIO outm1 outm0
 .outputs NO_VALID COUNT_MIN COUNT_MAX
-
-# costanti
-.subckt zero out=Z
-.subckt uno out=U
-
-# calcola se primo o secondo inseriscono 00
-.subckt mossazero PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 out=mz
-# multiplexer per NO_VALID
-.subckt muxMossaripetuta PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 VINCITORE_PRECEDENTE1=VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0=VINCITORE_PRECEDENTE0 o1=muxM1 o0=muxM0
-# calcolo output NO_VALID
-.subckt mossaripetuta MOSSA_PREC1=MOSSA_PREC1 MOSSA_PREC0=MOSSA_PREC0 e1=muxM1 e0=muxM0 c3=mz out=outNv
-
-# calcolo registro mossa precedente ( MOSSA_PREC1 E MOSSA_PREC0 )
-.subckt muxMossaprecedente PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 outm1=outm1 outm0=outm0 o1=muxP1 o0=muxP0
-.subckt mossaprecedente a1=muxP1 a0=muxP0 outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=MOSSA_PREC1 o0=MOSSA_PREC0
-
-# calcolo registro vincitore precedente ( VINCITORE_PRECEDENTE1 e VINCITORE_PRECEDENTE0 )
-.subckt vincitoreprecedente outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=VINCITORE_PRECEDENTE1 o0=VINCITORE_PRECEDENTE0
-
-# calcolo registro count ( COUNT4, COUNT3, COUNT2, COUNT1, COUNT0 )
-.subckt count outm1=outm1 outm0=outm0 INIZIO=INIZIO o4=COUNT4 o3=COUNT3 o2=COUNT2 o1=COUNT1 o0=COUNT0
-
-# calcolo registro max ( MAX4, MAX3, MAX2, MAX1, MAX0 )
-.subckt max PRIMO1=PRIMO1 PRIMO0=PRIMO0 SECONDO1=SECONDO1 SECONDO0=SECONDO0 INIZIO=INIZIO o4=MAX4 o3=MAX3 o2=MAX2 o1=MAX1 o0=MAX0
-
-# calcolo output COUNT_MIN
-.subckt greaterEqual5bit a4=Z a3=Z a2=Z a1=U a0=U b4=COUNT4 b3=COUNT3 b2=COUNT2 b1=COUNT1 b0=COUNT0 out=COUNT_MIN
-
-# calcolo output COUNT_MAX
-.subckt greaterEqual5bit a4=COUNT4 a3=COUNT3 a2=COUNT2 a1=COUNT1 a0=COUNT0 b4=MAX4 b3=MAX3 b2=MAX2 b1=MAX1 b0=MAX0 out=COUNT_MAX
-
-
-.names outNv INIZIO NO_VALID
+.latch    MAX0 g0 re NIL 0
+.latch    MAX1 g1 re NIL 0
+.latch    MAX2 g2 re NIL 0
+.latch    MAX3 g3 re NIL 0
+.latch    MAX4 g4 re NIL 0
+.latch    VINCITORE_PRECEDENTE0 [170] re NIL 0
+.latch    VINCITORE_PRECEDENTE1 [167] re NIL 0
+.latch    COUNT0 [203] re NIL 0
+.latch    COUNT1 [201] re NIL 0
+.latch    COUNT2 [199] re NIL 0
+.latch    COUNT3 [197] re NIL 0
+.latch    COUNT4 [195] re NIL 0
+.latch    MOSSA_PREC0 [213] re NIL 0
+.latch    MOSSA_PREC1 [212] re NIL 0
+.names PRIMO1 PRIMO0 SECONDO1 SECONDO0 INIZIO muxM1 muxM0 MOSSA_PREC1 \
+MOSSA_PREC0 NO_VALID
+00--0---- 1
+--000---- 1
+----01111 1
+----00101 1
+----01010 1
+----00000 1
+.names COUNT4 COUNT3 COUNT2 COUNT_MIN
+000 1
+.names COUNT4 COUNT3 COUNT2 COUNT1 COUNT0 MAX0 [43] [44] [45] [46] COUNT_MAX
+1-----1--- 1
+-1----01-- 1
+--1---001- 1
+---1--0001 1
+----1-0000 1
+-----00000 1
+.names INIZIO outm0 [167] [246] VINCITORE_PRECEDENTE1
+---1 1
+001- 1
+.names INIZIO outm1 [170] [241] VINCITORE_PRECEDENTE0
+---1 1
+001- 1
+.names PRIMO1 SECONDO1 VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 muxM1
+1-01 1
+-110 1
+.names PRIMO0 SECONDO0 VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 muxM0
+1-01 1
+-110 1
+.names PRIMO1 SECONDO1 INIZIO outm1 [212] [238] [241] [246] MOSSA_PREC1
+1-----1- 1
+---1--1- 1
+-1-----1 1
+--0-10-- 1
+.names PRIMO0 SECONDO0 INIZIO outm1 [213] [238] [241] [246] MOSSA_PREC0
+1-----1- 1
+---1--1- 1
+-1-----1 1
+--0-10-- 1
+.names [195] [221] [243] COUNT4
+11- 1
+-10 1
+.names [197] [198] [221] COUNT3
+011 1
+101 1
+.names COUNT1 [198] [199] [201] [221] COUNT2
+-01-1 1
+0-011 1
+.names COUNT0 [201] [203] [221] [238] COUNT1
+11--- 1
+-1-10 1
+0011- 1
+.names [203] [221] [238] COUNT0
+011 1
+110 1
+.names PRIMO1 PRIMO0 INIZIO g4 MAX4
+--01 1
+111- 1
+.names PRIMO1 PRIMO0 INIZIO g3 MAX3
+--01 1
+011- 1
+101- 1
+.names PRIMO0 INIZIO g2 MAX2
+01- 1
+-01 1
+.names SECONDO1 INIZIO g1 MAX1
+11- 1
+-01 1
+.names SECONDO0 INIZIO g0 MAX0
+11- 1
+-01 1
+.names COUNT4 MAX4 [43]
+01 1
 10 1
-
-.search uno.blif
-.search zero.blif
-.search greaterEqual5bit.blif
-.search max.blif
-.search count.blif
-.search vincitoreprecedente.blif
-.search mossaprecedente.blif
-.search mossaripetuta.blif
-.search muxMossaripetuta.blif
-.search mossazero.blif
-.search muxMossaprecedente.blif
-
+.names COUNT3 MAX3 [44]
+01 1
+10 1
+.names COUNT2 MAX2 [45]
+01 1
+10 1
+.names COUNT1 MAX1 [46]
+01 1
+10 1
+.names [199] [201] [203] [238] [198]
+1111 1
+.names INIZIO [195] [243] [221]
+00- 1
+0-1 1
+.names outm1 outm0 [238]
+1- 1
+-1 1
+.names INIZIO outm0 [241]
+01 1
+.names [197] [198] [243]
+0- 1
+-0 1
+.names INIZIO outm1 [246]
+01 1
 .end
