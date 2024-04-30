@@ -1,40 +1,9 @@
 .model count
-.inputs outm1 outm0 INIZIO
+.inputs i4 i3 i2 i1 i0
 .outputs o4 o3 o2 o1 o0
 
-# costanti
-.subckt zero out=Z
-
-# not ed extend
-.subckt equal2bit a1=outm1 a0=outm0 b1=Z b0=Z out=c
-.subckt not2bit in=c out=d
-.subckt ext1a5 in=d o4=d4 o3=d3 o2=d2 o1=d1 o0=d0
-# sommo output registro + 1 (vale uno solo se manche non vale 00, altrimenti sommerei 0)
-.subckt somma5bit a4=d4 a3=d3 a2=d2 a1=d1 a0=d0 b4=f4 b3=f3 b2=f2 b1=f1 b0=f0 cout=cout s4=e4 s3=e3 s2=e2 s1=e1 s0=e0
-
-# risultato del multiplexer come output del modello e input del registro
-.subckt registro5bit i4=o4 i3=o3 i2=o2 i1=o1 i0=o0 o4=f4 o3=f3 o2=f2 o1=f1 o0=f0
-
-.names cout e4 e3 e2 e1 e0 INIZIO o4
-01----0 1
-
-.names cout e4 e3 e2 e1 e0 INIZIO o3
-0-1---0 1
-
-.names cout e4 e3 e2 e1 e0 INIZIO o2
-0--1--0 1
-
-.names cout e4 e3 e2 e1 e0 INIZIO o1
-0---1-0 1
-
-.names cout e4 e3 e2 e1 e0 INIZIO o0
-0----10 1
+.subckt registro5bit i4=i4 i3=i3 i2=i2 i1=i1 i0=i0 o4=o4 o3=o3 o2=o2 o1=o1 o0=o0
 
 .search registro5bit.blif
-.search somma5bit.blif
-.search ext1a5.blif
-.search not2bit.blif
-.search zero.blif
-.search equal2bit.blif
 
 .end

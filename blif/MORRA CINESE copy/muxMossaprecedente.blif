@@ -1,7 +1,8 @@
 .model muxMossaprecedente
-.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0
+.inputs PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0 INIZIO
 .outputs o1 o0
 
+# costanti
 .subckt uno out=U
 
 .search uno.blif
@@ -12,14 +13,14 @@
 # 10 = PASSA SECONDO
 # 11 = PASSA 11
 
-.names U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0 o1
-111---01 1
-11--1-10 1
-11----11 1
+.names U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0 INIZIO o1
+111---010 1
+11--1-100 1
+11----110 1
 
-.names U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0 o0
-11-1--01 1
-11---110 1
-11----11 1
+.names U U PRIMO1 PRIMO0 SECONDO1 SECONDO0 outm1 outm0 INIZIO o0
+11-1--010 1
+11---1100 1
+11----110 1
 
 .end
