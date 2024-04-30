@@ -1,0 +1,11 @@
+.model prova
+.inputs outm1 outm0 INIZIO
+.outputs o1 o0
+
+.subckt vincitoreprecedente i1=vp1 i0=vp2 o1=VINCITORE_PRECEDENTE1 o0=VINCITORE_PRECEDENTE0
+.subckt muxVinci VINCITORE_PRECEDENTE1=VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0=VINCITORE_PRECEDENTE0 outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=vp1 o0=vp2
+
+.search muxVinci.blif
+.search vincitoreprecedente.blif
+
+.end

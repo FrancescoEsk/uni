@@ -18,7 +18,8 @@
 .subckt mossaprecedente a1=muxP1 a0=muxP0 outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=MOSSA_PREC1 o0=MOSSA_PREC0
 
 # calcolo registro vincitore precedente ( VINCITORE_PRECEDENTE1 e VINCITORE_PRECEDENTE0 )
-.subckt vincitoreprecedente outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=VINCITORE_PRECEDENTE1 o0=VINCITORE_PRECEDENTE0
+.subckt vincitoreprecedente i1=vp1 i0=vp2 o1=VINCITORE_PRECEDENTE1 o0=VINCITORE_PRECEDENTE0
+.subckt muxVinci VINCITORE_PRECEDENTE1=VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0=VINCITORE_PRECEDENTE0 outm1=outm1 outm0=outm0 INIZIO=INIZIO o1=vp1 o0=vp2
 
 # calcolo registro count ( COUNT4, COUNT3, COUNT2, COUNT1, COUNT0 )
 .subckt count outm1=outm1 outm0=outm0 INIZIO=INIZIO o4=COUNT4 o3=COUNT3 o2=COUNT2 o1=COUNT1 o0=COUNT0
@@ -47,5 +48,6 @@
 .search muxMossaripetuta.blif
 .search mossazero.blif
 .search muxMossaprecedente.blif
+.search muxVinci.blif
 
 .end
