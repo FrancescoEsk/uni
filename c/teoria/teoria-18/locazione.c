@@ -8,6 +8,10 @@ ALLOCAZIONE VARIABILI AUTOMATICA o STATICA
 
 --> richiedono di conoscere la dimensione delle variabili in tempo di compilazione
 
+ALLOCAZIONE DINAMICA DELLA MEMORIA
+Lo spazio necessario per memorizzare certe variabili è noto solo durante l'esecuzione del programma, gestite nell'heap.
+richiede funzione specifiche (ed esplicite) per allocare e LIBERARE la memoria
+
 
 */
 
