@@ -1,8 +1,0 @@
-.model and
-.inputs I1 I2
-.outputs out
-
-.names I1 I2 out
-11 1
-
-.end

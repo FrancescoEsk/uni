@@ -1,8 +1,0 @@
-.model not2bit
-.inputs in
-.outputs out
-
-.names in out
-0 1
-
-.end

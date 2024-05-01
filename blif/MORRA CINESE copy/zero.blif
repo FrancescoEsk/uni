@@ -1,6 +1,0 @@
-.model zero
-.outputs out
-
-.names out
-
-.end
