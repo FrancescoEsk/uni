@@ -2,6 +2,7 @@
     "r.lsp.promptToInstall": false,
     "files.associations": {
         "*.c": "c",
-        "random": "c"
+        "random": "c",
+        "MAIN.C": "cpp"
     }
 }
