@@ -198,7 +198,9 @@ module MorraCinese (
                 if(m == 1'b1) begin // MANCHE VINTA DA 1
                     // VINCE 1 e COUNT_MIN ATTIVO - MANCHE 1
                     if(COUNT_MIN == 1'b1) begin
-                    
+                        MANCHE = 2'b01;
+                        PARTITA = 2'b00;
+                        stato_prossimo = 3'b011; // MANDO A STATO V1+
                     end
                     
                     
@@ -209,7 +211,7 @@ module MorraCinese (
 
                     end else begin // MANCHE VINTA DA 2
                         
-
+ 
 
                     end
                 end
