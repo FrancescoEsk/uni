@@ -29,11 +29,15 @@ numAuto: # variabile tipo ascii che conterra' il numero da stampare
 _start:
 
     movl numPersone, %eax # dividendo (deve essere MAX 8 bit)
+    # AL contiene il numPersone, ovvero il valore su cui fare la divisione
 
     movl persPerAuto, %ebx # divisore
+    # BL contene persPerAuto, quindi il divisore
 
-    div %bl # prendo gli 8 bit meno significativi di ebx (perchè devo dividere per 8 bit e non di piu')
-    # --> AX / 5
+    div %bl # fa la divisione AL / BL -- risultato in AL e resto in AH
+
+    # prendo gli 8 bit meno significativi di ebx (perchè devo dividere per 8 bit e non di piu')
+    # --> 152 / 5 = 30 resto 2
     # divisione in assembly. la funzione DIV prende il registro AX (come operando) e inserisce in AL il quoziente e in AH il resto
 
     cmpb $0, %ah # controllo il resto con 0 (ovvero se sono rimaste persone senza auto)
@@ -55,14 +59,16 @@ skip: # procedo normalmente
     movl $10, %ebx # calcolo il divisore in %ebx
 
     movl $3, %ecx # la loop usa ecx con contatore, lo decrementa e riparte fino a che non vale 0
-
+# '8' = 48 (0) + 8 
 inizioCiclo:
+    # numAuto %eax = 31 
     div %bl # divido per 10
+    # dopo la divisione -> AL = 3 , AH 1
     addb $48, %ah # ascii di 0 = 48. sommo la cifra da inserire a 48 e ottengo la codifica ascii del numero che voglio stampare 
-    
+    # AH = 49 (codice ASCII per stampare il carattere '1')
     movb %ah, (%esi) # inserisco la codifica all'indirizzo di mem puntato da esi
     xorb %ah, %ah # pulisco ah
-
+     
     decl %esi # decremento il puntatore per selezionare la cifra dopo
     loop inizioCiclo # se ecx e' diverso da 0, allora torno a inizio ciclo
 
