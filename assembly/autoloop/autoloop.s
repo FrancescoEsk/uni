@@ -4,6 +4,7 @@
 
 titolo:
     .ascii "Programma per calcolare quante auto servono\n\n"
+    
 titolo_len:
     .long . - titolo
 
