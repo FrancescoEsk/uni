@@ -53,6 +53,7 @@ equals: # eax = ebx
     movl $4, %eax # carico la write
     movl $1, %ebx 
     int $0x80
+    mov
 
     jmp exit
 

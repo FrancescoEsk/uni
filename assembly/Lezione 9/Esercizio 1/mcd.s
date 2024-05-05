@@ -52,7 +52,7 @@ after: # fine IF
     jmp exit
 
 exit:
-    mov $1, %eax 
+    movl $1, %eax 
     xorl %ebx, %ebx # codice di uscita (0)
     int $0x80
 
