@@ -99,3 +99,115 @@ elem* inserisciInCoda(elem *lista, int n){
     }
     return lista;
 }
+
+// inserimento di un elemento in testa ( all'inizio della lista )
+elem* inserimentoInTesta(elem *lista, int n){
+    elem* tmp;
+    tmp = (elem*) malloc(sizeof(elem));
+    // verificare esito dell'allocazione
+    if(tmp != NULL){
+        tmp->num = n;
+        tmp->next = lista; // inserisco davanti
+        lista = tmp; // aggiorno il puntatore al primo elemento
+    } else {
+        printf("Memoria piena!\n");
+    }
+    return lista;
+}
+
+// inserimento ordinato
+elem* inserisciOrdinato(elem *lista, int n){
+    elem *tmp, *prox; 
+    tmp = (elem*) malloc(sizeof(elem));
+    // verificare esito dell'allocazione
+    if(tmp != NULL){
+        tmp->num = n; 
+        if(lista == NULL){ // se lista è vuota
+            tmp->next = lista;
+            lista = tmp;
+        } else {
+            if(tmp->num <= lista->num){ // se il num da inserire è più piccolo del primo elemento della lista
+                // inserimento in testa
+                tmp->next = lista;
+                lista = tmp;
+            } else if(lista->next = NULL){ // nel caso la lista abbia solo un elemento
+                tmp->next = NULL;
+                lista->next = tmp; 
+            } else { // scorro lista fino a trovare il punto in cui inserire l'elemento
+                for(prox = lista; prox->next != NULL && tmp->num > prox->next->num; prox = prox->next);
+                // prox diventa l'elemento precedente al numero da inserire
+                tmp->next = prox->next;
+                prox->next = tmp;
+            }
+        }
+    } else {
+        printf("Memoria piena!\n");
+    }
+    return lista;
+}
+
+// visualizza gli elementi
+void visualizza(elem *lista){
+    elem *tmp = lista;
+    while(tmp!=NULL){
+        printf("%d ", tmp->num);
+        tmp = tmp->next;
+    }
+    printf("\n");
+}
+
+// distruggi lista
+elem* distruggiLista(elem *lista){
+    elem *tmp=lista, *next;
+    while(tmp != NULL){
+        next = tmp->next;
+        free(tmp);
+        tmp = next;
+    }
+    return NULL;
+}
+
+// esiste un elemento n --> return 1, altrimenti return 0;
+int esisteElemento(elem *lista, int n){
+    elem *tmp = lista;
+    while (tmp != NULL){
+        if(tmp->num == n)   return 1; // se trovo il num nella lista
+    } // altrimenti
+    return 0;
+}
+
+// cancellazione di un elemento
+elem* rimuovi(elem *lista, int n){
+    elem *curr = lista, *prec = NULL;
+    int found = 0;
+    while(curr != NULL && !found){
+        if(curr->num == n){
+            found = 1;
+            if(prec != NULL)    prec->next = curr->next;
+            else    lista = curr;
+            free(curr);
+        } else {
+            prec = curr;
+            curr = curr->next;
+        }
+    }
+    return lista;
+}
+
+// calcola il massimo dei valori della lista
+int massimo(elem *lista){
+    int m;
+    elem *curr = lista;
+    if(curr != NULL){ // se la lista non è vuota
+        m = curr->num; // inizializzo il max al primo numero
+        curr = curr->next; // avanzo
+
+        while(curr != NULL){ // trovo il max
+            if(curr->num > m)   m = curr->num;
+        }
+        return m;
+    } else {
+        printf("Lista vuota\n");
+        return 0;
+    }
+}

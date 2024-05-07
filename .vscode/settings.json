@@ -4,6 +4,7 @@
         "*.c": "c",
         "random": "c",
         "MAIN.C": "cpp",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "cstdlib": "c"
     }
 }
