@@ -3,6 +3,7 @@
     "files.associations": {
         "*.c": "c",
         "random": "c",
-        "MAIN.C": "cpp"
+        "MAIN.C": "cpp",
+        "stdio.h": "c"
     }
 }
