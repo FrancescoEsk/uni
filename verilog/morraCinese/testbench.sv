@@ -12,7 +12,7 @@ module MorraCinese_tb;
         .clk(clk), 
         .PRIMO(primo), 
         .SECONDO(secondo), 
-      	.INIZIA(inizia),
+      	.INIZIO(inizia),
         .MANCHE(manche), 
         .PARTITA(partita)
     );

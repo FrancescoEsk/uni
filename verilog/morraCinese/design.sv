@@ -1,240 +1,444 @@
 module MorraCinese (
+    // INPUTS
     input clk, // clock
-    input reg [1:0] primo,
-    input reg [1:0] secondo,
-    input inizio, 
-    
-    output reg [1:0] manche,
-    output reg [1:0] partita,
-    output reg [2:0] stato // TEMPORANEO
+    input reg [1:0] PRIMO,
+    input reg [1:0] SECONDO,
+    input INIZIO, 
+
+    // OUTPUTS
+    output reg [1:0] MANCHE,
+    output reg [1:0] PARTITA
 );
+    // registri
+    reg [2:0] stato;
+    reg [2:0] stato_prossimo;
 
-    reg [2:0] stato_prossimo; // scegliere i bit in base a quanti stati vogliamo avere
+    reg [1:0] MOSSA_PREC;
+    reg [1:0] VINCITORE_PREC;
+    reg [4:0] COUNT;
+    reg [4:0] MAX;
 
-    reg [4:0] max; // contiene le partite massime giocabili (diminuiusce ogni manche valida effettuata)
-    reg [4:0] count; // conta quante partite sono state giocate
-    reg [3:0] vant; // vantaggio 
-    reg [1:0] oldPrimo; // registro per salvare la mossa precedente
-    reg [1:0] oldSecondo; // registro per salvare la mossa precedente
+    // bit
+    bit COUNT_MIN;
+    bit COUNT_MAX;
+    bit NO_VALID;
 
-    bit manchex; // 1 = manche non valida, 0 = manche valida
-    bit finex; // 1 = partita da terminare obbligatoriamente, 0 = no
-    bit minx; // 1 = minimo di 4 partite raggiunto, 0 = no
-    bit vantm; // attivo se uno dei due giocatori e' in vantaggio schiacciante (vittora non concedibile per minimo partite)
+    // bit locale
+    bit m; // usato per calcolare se la manche la vince 1 oppure no
 
     always @(posedge clk) begin // INIZIO / RESET
-        if (inizio) begin
-            // contare partite massime da giocare - parentesi graffe concatenano (10 01 --> 1001)
-            max = 5'b00100 + {primo, secondo};
-            // AZZERO
-            oldPrimo = 2'b00;
-            oldSecondo = 2'b00;
-            // vant --> considero 1000 come pareggio, e rispettivamente >1000 per 1 e <1000 per 2
-            vant = 4'b1000; 
-            count = 5'b00000;
-            manchex = 1'b0;
-            finex = 1'b0;
-            minx = 1'b0;
-            vantm = 1'b0;
+        if (INIZIO) begin
+            // imposto tutti i registri al valore iniziale
+            MOSSA_PREC = 2'b00;
+            VINCITORE_PREC = 2'b00;
+            COUNT = 5'b00000;
+            MAX = 5'b00011 + {PRIMO, SECONDO};
 
             stato_prossimo = 3'b000; // bit di stato iniziale 
         end else begin
-            stato = stato_prossimo; // se non ho reset, aggiorno lo stato
+            // se non ho reset, aggiorno lo stato
+            stato = stato_prossimo; 
         end
     end
 
-    always @(primo, secondo, count, vant, oldPrimo, oldSecondo) begin : DATAPATH
-        if(count >= 5'b00100) // PARTITE GIOCATE < 4
-            minx = 1'b1;
-        
-        if (count == max) // MASSIMO PARTITE RAGGIUNTO
-            finex = 1'b1;
-        
-        // se uno dei due giocatori e' in vantaggio di 2 o piu'
-        if (vant > 4'b1001 || vant < 4'b0110) 
-            vantm = 1'b1;
-        else
-            vantm = 1'b0;
+    always @(PRIMO, SECONDO, INIZIO) begin : DATAPATH
+        // calcolo NO_VALID
+        case(VINCITORE_PREC)
+            2'b01: begin // controllo PRIMO
+                if (PRIMO == 2'b00 || SECONDO == 2'b00 || PRIMO == MOSSA_PREC ) 
+                    NO_VALID = 1'b1;
+            end
+            2'b10: begin // controllo SECONDO
+                if (PRIMO == 2'b00 || SECONDO == 2'b00 || SECONDO == MOSSA_PREC ) 
+                    NO_VALID = 1'b1;
+            end
+            default: // LASCIO PASSARE
+                NO_VALID = 1'b0;
+        endcase
 
-        // se il giocatore vincente ripete la mossa precedente oppure 
-        // un giocatore inserisce 00 la manche non e' valida
-        if (primo == oldPrimo || secondo == oldSecondo || 
-            primo == 2'b00 || secondo == 2'b00)
-            manchex = 1'b1;
-        else
-            manchex = 1'b0;
-        
+        // calcolo COUNT_MIN
+        if(5'b00011 >= COUNT) // se count minore di 3 (4 partite)
+            COUNT_MIN = 1'b1; 
+        else // altrimenti
+            COUNT_MIN = 1'b0;
+
+        // calcolo COUNT_MAX
+        if(COUNT >= MAX) // se count maggiore o uguale di max (massimo partite giocabili raggiunto)
+            COUNT_MAX = 1'b1; 
+        else // altrimenti
+            COUNT_MAX = 1'b0;
+
     end
 
-    always @(primo, secondo, inizio) begin : FSM
+    always @(MANCHE) begin : RIENTRI_DATAPATH
+        case(MANCHE)
+
+            2'b01: begin // CASO MANCHE VINTA DA 1
+                // AGGIORNO MOSSA_PREC
+                MOSSA_PREC = PRIMO;
+
+                // AGGIORNO VINCITORE_PREC
+                VINCITORE_PREC = 2'b01;
+
+                // AUMENTO COUNT
+                COUNT = COUNT + 5'b00001;
+            end
+
+            2'b10: begin // CASO MANCHE VINTA DA 2
+                // AGGIORNO MOSSA_PREC
+                MOSSA_PREC = SECONDO;
+
+                // AGGIORNO VINCITORE_PREC
+                VINCITORE_PREC = 2'b10;
+
+                // AUMENTO COUNT
+                COUNT = COUNT + 5'b00001;
+            end
+
+            2'b11: begin // CASO MANCHE PAREGGIATA
+                // AGGIORNO MOSSA_PREC
+                MOSSA_PREC = 2'b11;
+
+                // AGGIORNO VINCITORE_PREC
+                VINCITORE_PREC = 2'b11;
+
+                // AUMENTO COUNT
+                COUNT = COUNT + 5'b00001;
+            end
+
+        endcase
+    end
+
+    always @(NO_VALID, COUNT_MIN, COUNT_MAX) begin : FSM
+        /*
+        # CODIFICA DEGLI STATI
+        INIZIA 000 # Stato di INIZIA
+        PAREGGIO 001 # Stato di pareggio
+        V1 010 # Stato di vantaggio 1 (+1)
+        V1P 011 # Stato di vantaggio di 1 (+2)
+        V1PP 100 # Stato di vantaggio di 1 (+3)
+        V2 101 # Stato di vantaggio di 2 (+1)
+        V2P 110 # Stato di vantaggio di 2 (+2)
+        V2PP 111 # Stato di vantaggio di 2 (+3)
+        */
+
+        if (PRIMO == 2'b10 && SECONDO == 2'b01
+            || PRIMO == 2'b01 && SECONDO == 2'b11
+            || PRIMO == 2'b11 && SECONDO == 2'b10) begin
+
+            m = 1'b1; // vale 1 se vince la manche 1, vale 0 se vince la manche 2
+        end else begin
+            m = 1'b0;
+        end
+
         case(stato)
-            3'b000: begin // stato INIZIO
-                manche = 2'b00;
-                partita = 2'b00;
-                stato_prossimo = 3'b001; // stato PAREGGIO
-            end
-
-            3'b001: begin // stato PAREGGIO
-                if (inizio == 1'b0) begin // se non c'e' reset
-
-                    if(finex) begin // TERMINARE PARTITA in PAREGGIO
-                        partita = 2'b11;
-                        stato_prossimo = 3'b100; //stato FINE PARTITA
-                    end
-
-                    else if (manchex) begin // MOSSE NON VALIDE
-                        manche = 2'b00;
-                        partita = 2'b00;
-                        stato_prossimo = 3'b001; //stato PAREGGIO
-                    end else begin // MOSSE VALIDE
-                        if (primo == 2'b10 && secondo == 2'b01
-                        || primo == 2'b01 && secondo == 2'b11
-                        || primo == 2'b11 && secondo == 2'b10) begin
-                            // VINCE 1
-                            manche = 2'b01;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b010; // stato VANT 1 
-                        end else if (primo == 2'b01 && secondo == 2'b10
-                        || primo == 2'b11 && secondo == 2'b01
-                        || primo == 2'b10 && secondo == 2'b11) begin
-                            // VINCE 2
-                            manche = 2'b10;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b011; // stato VANT 2 
-                        end else if (primo == secondo) begin
-                            // PAREGGIO
-                            manche = 2'b11;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b001; // stato PAREGGIO
-                        end
-                    end
-
-                end else begin
-                    manche = 2'b00;
-                    partita = 2'b00;
-                    stato_prossimo = 3'b000; // stato INIZIO
-                end
-                
-            end
-
-            3'b010: begin // stato VANT 1
-                if (inizio == 1'b0) begin // se non c'e' reset
-
-                    if((minx && vantm) || finex ) begin // TERMINARE PARTITA in VITTORIA 1
-                        partita = 2'b01;
-                        stato_prossimo = 3'b100; //stato FINE PARTITA
-                    end
-
-                    else if (manchex) begin // MOSSE NON VALIDE
-                        manche = 2'b00;
-                        partita = 2'b00;
-                        stato_prossimo = 3'b010; //stato VANT 1
-                    end else begin // MOSSE VALIDE
-                        if (primo == 2'b10 && secondo == 2'b01
-                        || primo == 2'b01 && secondo == 2'b11
-                        || primo == 2'b11 && secondo == 2'b10) begin
-                            // VINCE 1
-                            manche = 2'b01;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b010; // stato VANT 1 
-                        end else if (primo == 2'b01 && secondo == 2'b10
-                        || primo == 2'b11 && secondo == 2'b01
-                        || primo == 2'b10 && secondo == 2'b11) begin
-                            // VINCE 2
-                            manche = 2'b10;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b001; // stato PAREGGIO 
-                        end else if (primo == secondo) begin
-                            // PAREGGIO
-                            manche = 2'b11;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b010; // stato VANT 1
-                        end
-                    end
-
-                end else begin
-                    manche = 2'b00;
-                    partita = 2'b00;
-                    stato_prossimo = 3'b000; // stato INIZIO
+            // INIZIO
+            3'b000: begin 
+                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - AVANZO
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b001; // MANDO A STATO PAREGGIO
+                end else begin // INIZIO VALE 0 - RIMANGO
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
                 end
             end
 
-            3'b011: begin // stato VANT 2
-                if (inizio == 1'b0) begin // se non c'e' reset
+            // PAREGGIO
+            3'b001: begin
+                if(NO_VALID == 1'b1) begin
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b001; // MANDO A STATO PAREGGIO
+                end
 
-                    if((minx && vantm) || finex ) begin // TERMINARE PARTITA in VITTORIA 2
-                        partita = 2'b10;
-                        stato_prossimo = 3'b100; //stato FINE PARTITA
-                    end
-
-                    else if (manchex) begin // MOSSE NON VALIDE
-                        manche = 2'b00;
-                        partita = 2'b00;
-                        stato_prossimo = 3'b011; //stato VANT 2
-                    end else begin // MOSSE VALIDE
-                        if (primo == 2'b10 && secondo == 2'b01
-                        || primo == 2'b01 && secondo == 2'b11
-                        || primo == 2'b11 && secondo == 2'b10) begin
-                            // VINCE 1
-                            manche = 2'b01;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b001; // stato PAREGGIO 
-                        end else if (primo == 2'b01 && secondo == 2'b10
-                        || primo == 2'b11 && secondo == 2'b01
-                        || primo == 2'b10 && secondo == 2'b11) begin
-                            // VINCE 2
-                            manche = 2'b10;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b011; // stato VANT 2 
-                        end else if (primo == secondo) begin
-                            // PAREGGIO
-                            manche = 2'b11;
-                            partita = 2'b00;
-                            stato_prossimo = 3'b011; // stato VANT 2
-                        end
+                if(m == 1'b1) begin // MANCHE VINTA DA 1
+                    // VINCE 1 e COUNT_MAX ATTIVO - VITTORIA 1
+                    if (COUNT_MAX == 1'b1) begin 
+                        MANCHE = 2'b01;
+                        PARTITA = 2'b01;
+                        stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                    end else begin
+                    // VINCE 1 - MANCHE 1
+                        MANCHE = 2'b01;
+                        PARTITA = 2'b00;
+                        stato_prossimo = 3'b010; // MANDO A STATO V1
                     end
 
                 end else begin
-                    manche = 2'b00;
-                    partita = 2'b00;
-                    stato_prossimo = 3'b000; // stato INIZIO
+                    if( PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
+                        // PAREGGIO e COUNT_MAX ATTIVO - PAREGGIO 11
+                        if (COUNT_MAX == 1'b1) begin 
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b11;
+                            stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                        end else begin // MANCHE PAREGGIATA
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b001; // RIMANGO A PAREGGIO
+                        end
+                    end else begin // MANCHE VINTA DA 2
+                        // VINCE 2 e COUNT_MAX ATTIVO - VITTORIA 2
+                        if (COUNT_MAX == 1'b1) begin 
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b10;
+                            stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                        end else begin 
+                            // VINCE 2 - MANCHE 2
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b101; // MANDO A STATO v2 
+                        end
+                    end
                 end
             end
 
-            3'b100: begin // stato FINE
-                stato_prossimo = 3'b100; // stato FINE
-            end
-        endcase 
-    end
+            // V1
+            3'b010: begin
+                if(NO_VALID == 1'b1) begin // NON VALIDA
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b010; // MANDO A STATO v1
+                end else begin
+                    if(m == 1'b1) begin // MANCHE VINTA DA 1
+                        // VINCE 1 e COUNT_MIN ATTIVO - MANCHE 1
+                        if(COUNT_MIN == 1'b1) begin
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b011; // MANDO A STATO V1+
+                        end else begin // VINCE 1
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                        end
 
-    always @(manche) begin : RIENTRI_DATAPATH
-        case (manche) 
-            2'b01: begin // manche vinta da 1
-                oldPrimo = primo; // salvo mossa di 1
-                oldSecondo = 2'b00; // 2 puo' giocare qualunque mossa
-                count++; // conto la manche
-                vant++; // do' punto ad 1
+                    end else begin
+                        if(PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
+                            if(COUNT_MAX == 1'b1) begin
+                                // MANCHE VINTA DA 1 
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b01;
+                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                            end else begin
+                                // PAREGGIO
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b010; // MANDO A STATO V1
+                            end
+                        end else begin // MANCHE VINTA DA 2
+                            if(COUNT_MAX == 1'b1) begin
+                            // MANCHE VINTA DA 2 - PARTITA PAREGGIATA
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b11;
+                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                            end else begin
+                            // VINCE 2 
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b001; // MANDO A STATO PAREGGIO
+                            end
+                        end
+                    end
+                end
             end
-            2'b10: begin // manche vinta da 2
-                oldSecondo = secondo; // salvo mossa di 2
-                oldPrimo = 2'b00; // 1 puo' giocare qualunque mossa
-                count++; // conto la manche
-                vant--; // do' punto ad 2
+
+            // V1+
+            3'b011: begin
+                if(NO_VALID == 1'b1) begin // MANCHE  NON VALIDA
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b011; // MANDO A STATO V1+
+                end else begin
+                    if(m == 1'b1) begin // MANCHE VINTA DA 1
+                    // VINCE 1 e COUNT_MIN ATTIVO - MANCHE 1
+                        if(COUNT_MIN == 1'b1) begin
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b110; // MANDO A STATO V1++
+                        end else begin // VINCE 1
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                        end
+
+                    end else begin
+                        if(PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
+                            if(COUNT_MIN == 1'b1) begin
+                                // PAREGGIO
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b011; // MANDO A STATO V1+
+                            end else begin
+                                // PAREGGIO - VINCITA 1
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b01;
+                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                            end
+                        end else begin // MANCHE VINTA DA 2
+                            if(COUNT_MAX == 1'b1) begin
+                            // MANCHE VINTA DA 2 - VINCE 1
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b01;
+                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                            end else begin
+                                // MANCHE VINTA DA 2 
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b010; // MANDO A STATO V1
+                            end
+
+                        end
+                    end
+                end
             end
-            2'b11: begin // manche pareggiata
-                oldPrimo = 2'b00; // 1 puo' giocare qualunque mossa
-                oldSecondo = 2'b00; // 2 puo' giocare qualunque mossa
-                count++; // conto la manche
-                // do' punto a nessuno
+
+            // V1++
+            3'b100: begin
+                if(NO_VALID == 1'b1) begin // MANCHE non valida
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b100; // MANDO A STATO V1++
+                end else begin
+                    if(m == 1'b1) begin
+                        // MANCHE VINTA DA 1 - VITTORIA 1
+                        MANCHE = 2'b01;
+                    end else begin
+                        if(PRIMO == SECONDO) begin
+                            // MANCHE PAREGGIATA - VITTORIA 1
+                            MANCHE = 2'b11;
+                        end else begin
+                            // MANCHE VINTA DA 2 - VITTORIA 1
+                            MANCHE = 2'b10;
+                        end
+                    end
+                    PARTITA = 2'b01;
+                    stato_prossimo = 3'b000; // MANDO A STATO INIZIO
+                end 
+            end
+
+            // V2
+            3'b101: begin
+                if(NO_VALID == 1'b1) begin // NON VALIDA
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b101; // MANDO A STATO v2
+                end else begin
+                    if(m == 1'b1) begin // MANCHE VINTA DA 1
+                        // VINCE 1 e COUNT_MAX ATTIVO - PARTITA PAREGGIATA
+                        if(COUNT_MAX == 1'b1) begin
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b11;
+                            stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                        end else begin // MANCHE VINTA DA 1
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b001; // MANDO A STATO PAREGGIO
+                        end
+
+                    end else begin
+                        if(PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
+                            if(COUNT_MAX == 1'b1) begin
+                                // PARTITA VINTA DA 2 
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b10;
+                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                            end else begin
+                                // PAREGGIO
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b101; // MANDO A STATO V2
+                            end
+                        end else begin // MANCHE VINTA DA 2
+                            if(COUNT_MIN == 1'b1) begin
+                            // MANCHE VINTA DA 2 E COUNT_MIN ATTIVO
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b110; // MANDO A STATO V2+
+                            end else begin
+                            // VINCE 2 
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b10;
+                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                            end
+                        end
+                    end
+                end
+            end
+
+            // V2+
+            3'b110: begin
+                if(NO_VALID == 1'b1) begin // MANCHE  NON VALIDA
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b110; // MANDO A STATO V2+
+                end else begin
+                    if(m == 1'b1) begin // MANCHE VINTA DA 1
+                    // MANCHE VINTA DA 1 e COUNT_MIN ATTIVO - PARTITA VINTA DA 2
+                        if(COUNT_MAX == 1'b1) begin
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b10;
+                            stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                        end else begin // MANCHE VINTA DA 1
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b101; // MANDO A STATO V2
+                        end
+
+                    end else begin
+                        if(PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
+                            if(COUNT_MIN == 1'b1) begin
+                                // PAREGGIO
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b110; // MANDO A STATO V2+
+                            end else begin
+                                // PAREGGIO - VINCITA 2
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b10;
+                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
+                            end
+                        end else begin // MANCHE VINTA DA 2
+                            if(COUNT_MIN == 1'b1) begin
+                            // MANCHE VINTA DA 2
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b111; // MANDO A STATO V2++
+                            end else begin
+                                // MANCHE VINTA DA 2 - VINCE 2
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b10;
+                                stato_prossimo = 3'b000; // MANDO A STATO INZIIALE
+                            end
+                        end
+                    end
+                end
+            end
+
+            // V2++
+            3'b111: begin
+                if(NO_VALID == 1'b1) begin // MANCHE non valida
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b111; // MANDO A STATO V2++
+                end else begin
+                    if(m == 1'b1) begin
+                        // MANCHE VINTA DA 1 - VITTORIA 2
+                        MANCHE = 2'b01;
+                    end else begin
+                        if(PRIMO == SECONDO) begin
+                            // MANCHE PAREGGIATA - VITTORIA 2
+                            MANCHE = 2'b11;
+                        end else begin
+                            // MANCHE VINTA DA 2 - VITTORIA 2
+                            MANCHE = 2'b10;
+                        end
+                    end
+                    PARTITA = 2'b10;
+                    stato_prossimo = 3'b000; // MANDO A STATO INIZIO
+                end 
             end
         endcase
     end
 
-    /*
-    RICORDO
-    - se un giocatore inserisce 00 come mossa, la manche non e' valida e quindi non viene contata
-    - vantm e' attivo solo nel caso un giocatore fosse in vantaggio di 2 o piu'
-    - oldPrimo e oldSecondo, se valgono 00 significa che il giocatore puo' giocare qualunque mossa
-    - 
-    */
-endmodule 
+endmodule
