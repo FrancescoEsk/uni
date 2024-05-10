@@ -31,7 +31,7 @@ module MorraCinese_tb;
         clk = 0;
         primo = 2'b00;
         secondo = 2'b00;
-        inizia = 1'b0;
+        inizia = 1'b1;
     
         #10;  // Aspetta un ciclo di clock
         file1 = $fopen("testbench.script", "w");
