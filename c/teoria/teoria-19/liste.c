@@ -72,9 +72,18 @@ int esisteElemento(elem*, int); // 1 se trova l'elemento, 0 se no
 
 int massimo(elem*); // trova il massimo num della lista
 
+int listalen(elem*); // restituisce la lunghezza della lista
+ 
 int main(void){
     
     return 0;
+}
+
+int listalen(elem *lista){
+    if(lista == NULL)
+        return 0;
+    else
+        return 1 + listalen(lista->next);
 }
 
 elem* inserisciInCoda(elem *lista, int n){
