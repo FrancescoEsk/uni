@@ -2,17 +2,30 @@
 .section .data
 
 str:
-    .ascii "010.09.121.2\n"
+    .ascii "10,9,121,2\n"
 
 .section .text
     .global _start
 
 _start:
     leal str, %eax
-    movl $11, %ebx
-
+    movl $0, %ebx
     call readl
-    
+    call printfd
+
+    leal str, %eax
+    movl $1, %ebx
+    call readl
+    call printfd
+
+    leal str, %eax
+    movl $2, %ebx
+    call readl
+    call printfd
+
+    leal str, %eax
+    movl $3, %ebx
+    call readl
     call printfd
 
     jmp exit

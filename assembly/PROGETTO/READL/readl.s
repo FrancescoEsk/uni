@@ -4,15 +4,16 @@
 
 # PARAMETRI
 # EAX = leal della variabile ascii
-# EBX = offset della stringa
+# EBX = offset della stringa (quale parametro voglio)
 # OFFSET: $0 -> primi 3 num
-# OFFSET: $4 -> secondi 2 num
-# OFFSET: $7 -> terzi 3 num
-# OFFSET: $11 -> ultimo num
+# OFFSET: $1 -> secondi 2 num
+# OFFSET: $2 -> terzi 3 num
+# OFFSET: $3 -> ultimo num
 
 # ESEMPIO DI ASCII CHE TRADUCE QUESTA FUNZIONE
 # str:
-#   .ascii "010.09.121.2\n"
+#   .ascii "010,09,121,2\n"
+.section .data
 
 .section .text
 .global readl
@@ -20,19 +21,21 @@
 .type readl, @function
 
 readl:
-    addl %ebx, %eax # sommo offset della stringa per saltare al numero da convertire
+    addl $1, %ebx
+    movl %eax, %esi # carico indirizzo della stringa da leggere
+    movl %ebx, %ecx
 
-    movl %eax, %esi
-
-    xorl %eax,%eax			# Azzero registri General Purpose
-    xorl %ebx,%ebx           
-    xorl %ecx,%ecx           
+    xorl %edi, %edi
+    xorl %ebx,%ebx                
     xorl %edx,%edx
 
-ripeti:
-    movb (%ecx,%esi,1), %bl
+clean:
+    xorl %eax, %eax
 
-    cmpb $46, %bl             # vedo se e' stato letto il carattere '.'
+ripeti:
+    movb (%edi,%esi,1), %bl
+
+    cmpb $44, %bl             # vedo se e' stato letto il carattere ','
     je fine_atoi
     cmpb $10, %bl             # vedo se e' stato letto il carattere '\n'
     je fine_atoi
@@ -42,10 +45,14 @@ ripeti:
     mulb %dl                # EBX = EBX * 10
     addl %ebx, %eax
 
-    incl %ecx
+    incl %edi
+
     jmp ripeti
 
-fine_atoi:
-    # EAX contiene il numero letto
-    ret
+fine_atoi: # EAX contiene il numero letto
 
+    incl %edi # incremento il puntatore della stringa per saltare la ','
+
+    loop clean # loop se non ho il numero scelto dall'offset
+    
+    ret # EAX contiene il numero
