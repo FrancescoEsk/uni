@@ -74,9 +74,18 @@ int massimo(elem*); // trova il massimo num della lista
 
 int listalen(elem*); // restituisce la lunghezza della lista
  
+void listdestroy(elem*); // funz ricorsiva che distrugge la lista
+
 int main(void){
     
     return 0;
+}
+
+void listdestroy(elem* lista){ // ricorsiva
+    if(lista != NULL){
+        return listdestroy(lista->next);
+        free(lista);
+    }
 }
 
 int listalen(elem *lista){
