@@ -28,10 +28,7 @@ module MorraCinese_tb;
         $dumpfile("dump.vcd");
         $dumpvars(1);
         // Inizializzazione dei segnali
-        clk = 0;
-        primo = 2'b00;
-        secondo = 2'b00;
-        inizia = 1'b1;
+        clk = 1;
     
         #10;  // Aspetta un ciclo di clock
         file1 = $fopen("testbench.script", "w");
@@ -47,7 +44,7 @@ module MorraCinese_tb;
         #10;
         $fdisplay(file2, "Outputs: %b %b %b %b", manche[1], manche[0],partita[1],partita[0]);
         
-        $display("Manche: %d - Partita: %d", manche, partita);
+        $display("Manche: %b - Partita: %b", manche, partita);
 
         // Continua la partita
         for (i = 0; i < 4 ; i = i + 1) begin 
@@ -56,9 +53,10 @@ module MorraCinese_tb;
                 primo = i;  
                 secondo = j; 
                 $fdisplay(file1, "simulate %b %b %b %b %b", primo[1], primo[0],secondo[1],secondo[0],inizia);
-            
+                // $display("Mosse giocate %b-%b", primo, secondo);
                 #10;
-                $display("Mosse giocate %d-%d // Manche: %d - Partita: %d", primo, secondo, manche, partita);
+                // $display("Manche: %b - Partita: %b\n\n", manche, partita);
+                $display("Mosse giocate %b-%b // Manche: %b - Partita: %b", primo, secondo, manche, partita);
                 $fdisplay(file2, "Outputs: %b %b %b %b", manche[1], manche[0],partita[1],partita[0]);
         
             end 
@@ -70,9 +68,10 @@ module MorraCinese_tb;
                 primo = i;  
                 secondo = j; 
                 $fdisplay(file1, "simulate %b %b %b %b %b", primo[1],primo[0],secondo[1],secondo[0],inizia);
-            
+                // $display("Mosse giocate %b-%b", primo, secondo);
                 #10;
-                $display("Mosse giocate %d-%d // Manche: %d - Partita: %d", primo, secondo, manche, partita);
+                // $display("Manche: %b - Partita: %b\n\n", manche, partita);
+                $display("Mosse giocate %b-%b // Manche: %b - Partita: %b", primo, secondo, manche, partita);
                 $fdisplay(file2, "Outputs: %b %b %b %b", manche[1], manche[0],partita[1],partita[0]);
         
             end 

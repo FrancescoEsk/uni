@@ -41,10 +41,11 @@ module MorraCinese (
             NO_VALID = 1'b0;
 
         end else begin
+            $display("\nStato: %b  // Stato prossimo: %b", stato, stato_prossimo);
             // se non ho reset, aggiorno lo stato
             stato = stato_prossimo; 
-            $display("Mosse: %d, %d, Inizio: %d", PRIMO, SECONDO, INIZIO);
-            $display("Stato prossimo: %d, Cmin: %d, Cmax: %d, Nv: %d", stato_prossimo, COUNT_MIN, COUNT_MAX, NO_VALID);
+            $display("Mossa P: %b , Vincitore P: %b , Count: %b , Max: %b ", MOSSA_PREC, VINCITORE_PREC, COUNT, MAX);
+            $display("m: %b , Cmin: %b , Cmax: %b , Nv: %b \n", m, COUNT_MIN, COUNT_MAX, NO_VALID);
         end
     end
 
@@ -62,6 +63,11 @@ module MorraCinese (
             default: // LASCIO PASSARE
                 NO_VALID = 1'b0;
         endcase
+
+        if ( PRIMO == 2'b00 || SECONDO == 2'b00 ) 
+            NO_VALID = 1'b1;
+        else
+            NO_VALID = 1'b0;
         // calcolo COUNT_MIN
         if(5'b00011 >= COUNT) // se count minore di 3 (4 partite)
             COUNT_MIN = 1'b1; 
@@ -87,7 +93,7 @@ module MorraCinese (
         V2P 110 # Stato di vantaggio di 2 (+2)
         V2PP 111 # Stato di vantaggio di 2 (+3)
         */
-
+        
         if (PRIMO == 2'b10 && SECONDO == 2'b01
             || PRIMO == 2'b01 && SECONDO == 2'b11
             || PRIMO == 2'b11 && SECONDO == 2'b10) begin
@@ -100,7 +106,7 @@ module MorraCinese (
         case(stato)
             // INIZIO
             3'b000: begin 
-                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - AVANZO
+                if(INIZIO) begin // INIZIO VALE 1 - AVANZO
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
                     stato_prossimo = 3'b001; // MANDO A STATO PAREGGIO
@@ -113,343 +119,317 @@ module MorraCinese (
 
             // PAREGGIO
             3'b001: begin
-                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - RESET
+                if (INIZIO) begin
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
-                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                end else begin
-                    if(NO_VALID == 1'b1) begin
-                        MANCHE = 2'b00;
-                        PARTITA = 2'b00;
-                        stato_prossimo = 3'b001; // MANDO A STATO PAREGGIO
-                    end else begin
-                        if(m == 1'b1) begin // MANCHE VINTA DA 1
-                            // VINCE 1 e COUNT_MAX ATTIVO - VITTORIA 1
-                            if (COUNT_MAX == 1'b1) begin 
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b01;
-                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                            end else begin
-                            // VINCE 1 - MANCHE 1
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b00;
-                                stato_prossimo = 3'b010; // MANDO A STATO V1
-                            end
-
+                    stato_prossimo = 3'b000; // inizio
+                end else if (!NO_VALID) begin // mosse valide
+                    if(COUNT_MAX) begin // partita da finire
+                        if(PRIMO == SECONDO) begin
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b11;
+                            stato_prossimo = 3'b000; // inizio
+                        end else if (m) begin
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b10;
+                            stato_prossimo = 3'b000; // inizio
                         end else begin
-                            if( PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
-                                // PAREGGIO e COUNT_MAX ATTIVO - PAREGGIO 11
-                                if (COUNT_MAX == 1'b1) begin 
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b11;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end else begin // MANCHE PAREGGIATA
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b001; // RIMANGO A PAREGGIO
-                                end
-                            end else begin // MANCHE VINTA DA 2
-                                // VINCE 2 e COUNT_MAX ATTIVO - VITTORIA 2
-                                if (COUNT_MAX == 1'b1) begin 
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b10;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end else begin 
-                                    // VINCE 2 - MANCHE 2
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b101; // MANDO A STATO v2 
-                                end
-                            end
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // inizio
+                        end
+                    end else begin // partita da non finire
+                        PARTITA = 2'b00;
+                        if(PRIMO == SECONDO) begin
+                            MANCHE = 2'b11;
+                            // PARTITA = 2'b00;
+                            stato_prossimo = 3'b001; // pareggio
+                        end else if (m) begin
+                            MANCHE = 2'b10;
+                            // PARTITA = 2'b00;
+                            stato_prossimo = 3'b010; // v1
+                        end else begin
+                            $display("DIOCANE");
+                            MANCHE = 2'b01;
+                            // PARTITA = 2'b00;
+                            stato_prossimo = 3'b101; // v2
                         end
                     end
+                end else begin // mosse non valide
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b001; // pareggio
                 end
             end
-
+            
             // V1
             3'b010: begin
-                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - RESET
+                if (INIZIO) begin
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
-                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                end else begin
-                    if(NO_VALID == 1'b1) begin // NON VALIDA
-                        MANCHE = 2'b00;
-                        PARTITA = 2'b00;
-                        stato_prossimo = 3'b010; // MANDO A STATO v1
-                    end else begin
-                        if(m == 1'b1) begin // MANCHE VINTA DA 1
-                            // VINCE 1 e COUNT_MIN ATTIVO - MANCHE 1
-                            if(COUNT_MIN == 1'b1) begin
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b00;
-                                stato_prossimo = 3'b011; // MANDO A STATO V1+
-                            end else begin // VINCE 1
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b01;
-                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                            end
-
+                    stato_prossimo = 3'b000; // inizio
+                end else if (!NO_VALID) begin // mosse valide
+                    if(COUNT_MAX) begin // partita da finire
+                        if(PRIMO == SECONDO) begin
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b10;
+                            stato_prossimo = 3'b000; // inizio
+                        end else if (m) begin
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b10;
+                            stato_prossimo = 3'b000; // inizio
                         end else begin
-                            if(PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
-                                if(COUNT_MAX == 1'b1) begin
-                                    // MANCHE VINTA DA 1 
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b01;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end else begin
-                                    // PAREGGIO
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b010; // MANDO A STATO V1
-                                end
-                            end else begin // MANCHE VINTA DA 2
-                                if(COUNT_MAX == 1'b1) begin
-                                // MANCHE VINTA DA 2 - PARTITA PAREGGIATA
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b11;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end else begin
-                                // VINCE 2 
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b001; // MANDO A STATO PAREGGIO
-                                end
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b11;
+                            stato_prossimo = 3'b000; // inizio
+                        end
+                    end else begin // partita da non finire
+                        if(PRIMO == SECONDO) begin
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b010; // v1
+                        end else if (m) begin
+                            if (COUNT_MIN) begin
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b011; // v1+
+                            end else begin
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b10;
+                                stato_prossimo = 3'b000; // inizio
                             end
+                        end else begin
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b001; // pareggio
                         end
                     end
+                end else begin // mosse non valide
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b010; // v1
                 end
             end
 
             // V1+
             3'b011: begin
-                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - RESET
+                if (INIZIO) begin
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
-                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                end else begin
-                    if(NO_VALID == 1'b1) begin // MANCHE  NON VALIDA
-                        MANCHE = 2'b00;
-                        PARTITA = 2'b00;
-                        stato_prossimo = 3'b011; // MANDO A STATO V1+
-                    end else begin
-                        if(m == 1'b1) begin // MANCHE VINTA DA 1
-                        // VINCE 1 e COUNT_MIN ATTIVO - MANCHE 1
-                            if(COUNT_MIN == 1'b1) begin
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b00;
-                                stato_prossimo = 3'b110; // MANDO A STATO V1++
-                            end else begin // VINCE 1
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b01;
-                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                            end
-
+                    stato_prossimo = 3'b000; // inizio
+                end else if (!NO_VALID) begin // mosse valide
+                    if(COUNT_MAX) begin // partita da finire
+                        if(PRIMO == SECONDO) begin
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b10;
+                            stato_prossimo = 3'b000; // inizio
+                        end else if (m) begin
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b10;
+                            stato_prossimo = 3'b000; // inizio
                         end else begin
-                            if(PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
-                                if(COUNT_MIN == 1'b1) begin
-                                    // PAREGGIO
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b011; // MANDO A STATO V1+
-                                end else begin
-                                    // PAREGGIO - VINCITA 1
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b01;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end
-                            end else begin // MANCHE VINTA DA 2
-                                if(COUNT_MAX == 1'b1) begin
-                                // MANCHE VINTA DA 2 - VINCE 1
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b01;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end else begin
-                                    // MANCHE VINTA DA 2 
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b010; // MANDO A STATO V1
-                                end
-
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b10;
+                            stato_prossimo = 3'b000; // inizio
+                        end
+                    end else begin // partita da non finire
+                        if(PRIMO == SECONDO) begin
+                            if (COUNT_MIN) begin
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b011; // v1+
+                            end else begin
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b10;
+                                stato_prossimo = 3'b000; // inizio
                             end
+                        end else if (m) begin
+                            if (COUNT_MIN) begin
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b100; // v1++
+                            end else begin
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b10;
+                                stato_prossimo = 3'b000; // inizio
+                            end
+                        end else begin
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b010; // v1
                         end
                     end
-                end 
+                end else begin // mosse non valide
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b011; // v1+
+                end
             end
 
             // V1++
             3'b100: begin
-                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - RESET
+                if (INIZIO) begin
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
-                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                end else begin
-                    if(NO_VALID == 1'b1) begin // MANCHE non valida
-                        MANCHE = 2'b00;
-                        PARTITA = 2'b00;
-                        stato_prossimo = 3'b100; // MANDO A STATO V1++
+                    stato_prossimo = 3'b000; // inizio
+                end else if (!NO_VALID) begin // mosse valide
+                    if(PRIMO == SECONDO) begin
+                        MANCHE = 2'b11;
+                        PARTITA = 2'b10;
+                        stato_prossimo = 3'b000; // inizio
+                    end else if (m) begin
+                        MANCHE = 2'b10;
+                        PARTITA = 2'b10;
+                        stato_prossimo = 3'b000; // inizio
                     end else begin
-                        if(m == 1'b1) begin
-                            // MANCHE VINTA DA 1 - VITTORIA 1
-                            MANCHE = 2'b01;
-                        end else begin
-                            if(PRIMO == SECONDO) begin
-                                // MANCHE PAREGGIATA - VITTORIA 1
-                                MANCHE = 2'b11;
-                            end else begin
-                                // MANCHE VINTA DA 2 - VITTORIA 1
-                                MANCHE = 2'b10;
-                            end
-                        end
-                        PARTITA = 2'b01;
-                        stato_prossimo = 3'b000; // MANDO A STATO INIZIO
-                    end 
+                        MANCHE = 2'b01;
+                        PARTITA = 2'b10;
+                        stato_prossimo = 3'b000; // inizio
+                    end
+                end else begin // mosse non valide
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b100; // v1++
                 end
             end
 
             // V2
             3'b101: begin
-                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - RESET
+                if (INIZIO) begin
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
-                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                end else begin
-                    if(NO_VALID == 1'b1) begin // NON VALIDA
-                        MANCHE = 2'b00;
-                        PARTITA = 2'b00;
-                        stato_prossimo = 3'b101; // MANDO A STATO v2
-                    end else begin
-                        if(m == 1'b1) begin // MANCHE VINTA DA 1
-                            // VINCE 1 e COUNT_MAX ATTIVO - PARTITA PAREGGIATA
-                            if(COUNT_MAX == 1'b1) begin
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b11;
-                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                            end else begin // MANCHE VINTA DA 1
+                    stato_prossimo = 3'b000; // inizio
+                end else if (!NO_VALID) begin // mosse valide
+                    if(COUNT_MAX) begin // partita da finire
+                        if(PRIMO == SECONDO) begin
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // inizio
+                        end else if (m) begin
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b11;
+                            stato_prossimo = 3'b000; // inizio
+                        end else begin
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // inizio
+                        end
+                    end else begin // partita da non finire
+                        if(PRIMO == SECONDO) begin
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b101; // v2
+                        end else if (!m) begin
+                            if (COUNT_MIN) begin
                                 MANCHE = 2'b01;
                                 PARTITA = 2'b00;
-                                stato_prossimo = 3'b001; // MANDO A STATO PAREGGIO
+                                stato_prossimo = 3'b110; // v2+
+                            end else begin
+                                MANCHE = 2'b01;
+                                PARTITA = 2'b01;
+                                stato_prossimo = 3'b000; // inizio
                             end
-
                         end else begin
-                            if(PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
-                                if(COUNT_MAX == 1'b1) begin
-                                    // PARTITA VINTA DA 2 
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b10;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end else begin
-                                    // PAREGGIO
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b101; // MANDO A STATO V2
-                                end
-                            end else begin // MANCHE VINTA DA 2
-                                if(COUNT_MIN == 1'b1) begin
-                                // MANCHE VINTA DA 2 E COUNT_MIN ATTIVO
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b110; // MANDO A STATO V2+
-                                end else begin
-                                // VINCE 2 
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b10;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end
-                            end
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b001; // pareggio
                         end
                     end
+                end else begin // mosse non valide
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b101; // v2
                 end
             end
 
             // V2+
             3'b110: begin
-                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - RESET
+                if (INIZIO) begin
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
-                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                end else begin
-                    if(NO_VALID == 1'b1) begin // MANCHE  NON VALIDA
-                        MANCHE = 2'b00;
-                        PARTITA = 2'b00;
-                        stato_prossimo = 3'b110; // MANDO A STATO V2+
-                    end else begin
-                        if(m == 1'b1) begin // MANCHE VINTA DA 1
-                        // MANCHE VINTA DA 1 e COUNT_MIN ATTIVO - PARTITA VINTA DA 2
-                            if(COUNT_MAX == 1'b1) begin
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b10;
-                                stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                            end else begin // MANCHE VINTA DA 1
+                    stato_prossimo = 3'b000; // inizio
+                end else if (!NO_VALID) begin // mosse valide
+                    if(COUNT_MAX) begin // partita da finire
+                        if(PRIMO == SECONDO) begin
+                            MANCHE = 2'b11;
+                            PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // inizio
+                        end else if (m) begin
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // inizio
+                        end else begin
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // inizio
+                        end
+                    end else begin // partita da non finire
+                        if(PRIMO == SECONDO) begin
+                            if (COUNT_MIN) begin
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b00;
+                                stato_prossimo = 3'b110; // v2+
+                            end else begin
+                                MANCHE = 2'b11;
+                                PARTITA = 2'b01;
+                                stato_prossimo = 3'b000; // inizio
+                            end
+                        end else if (!m) begin
+                            if (COUNT_MIN) begin
                                 MANCHE = 2'b01;
                                 PARTITA = 2'b00;
-                                stato_prossimo = 3'b101; // MANDO A STATO V2
+                                stato_prossimo = 3'b111; // v2++
+                            end else begin
+                                MANCHE = 2'b01;
+                                PARTITA = 2'b01;
+                                stato_prossimo = 3'b000; // inizio
                             end
-
                         end else begin
-                            if(PRIMO == SECONDO ) begin // MANCHE PAREGGIATA
-                                if(COUNT_MIN == 1'b1) begin
-                                    // PAREGGIO
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b110; // MANDO A STATO V2+
-                                end else begin
-                                    // PAREGGIO - VINCITA 2
-                                    MANCHE = 2'b11;
-                                    PARTITA = 2'b10;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                                end
-                            end else begin // MANCHE VINTA DA 2
-                                if(COUNT_MIN == 1'b1) begin
-                                // MANCHE VINTA DA 2
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b00;
-                                    stato_prossimo = 3'b111; // MANDO A STATO V2++
-                                end else begin
-                                    // MANCHE VINTA DA 2 - VINCE 2
-                                    MANCHE = 2'b10;
-                                    PARTITA = 2'b10;
-                                    stato_prossimo = 3'b000; // MANDO A STATO INZIIALE
-                                end
-                            end
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b00;
+                            stato_prossimo = 3'b101; // v2
                         end
                     end
+                end else begin // mosse non valide
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b110; // v2+
                 end
             end
 
             // V2++
             3'b111: begin
-                if(INIZIO == 1'b1) begin // INIZIO VALE 1 - RESET
+                if (INIZIO) begin
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
-                    stato_prossimo = 3'b000; // MANDO A STATO INIZIALE
-                end else begin
-                    if(NO_VALID == 1'b1) begin // MANCHE non valida
-                        MANCHE = 2'b00;
-                        PARTITA = 2'b00;
-                        stato_prossimo = 3'b111; // MANDO A STATO V2++
+                    stato_prossimo = 3'b000; // inizio
+                end else if (!NO_VALID) begin // mosse valide
+                    if(PRIMO == SECONDO) begin
+                        MANCHE = 2'b11;
+                        PARTITA = 2'b01;
+                        stato_prossimo = 3'b000; // inizio
+                    end else if (m) begin
+                        MANCHE = 2'b10;
+                        PARTITA = 2'b01;
+                        stato_prossimo = 3'b000; // inizio
                     end else begin
-                        if(m == 1'b1) begin
-                            // MANCHE VINTA DA 1 - VITTORIA 2
-                            MANCHE = 2'b01;
-                        end else begin
-                            if(PRIMO == SECONDO) begin
-                                // MANCHE PAREGGIATA - VITTORIA 2
-                                MANCHE = 2'b11;
-                            end else begin
-                                // MANCHE VINTA DA 2 - VITTORIA 2
-                                MANCHE = 2'b10;
-                            end
-                        end
-                        PARTITA = 2'b10;
-                        stato_prossimo = 3'b000; // MANDO A STATO INIZIO
-                    end 
+                        MANCHE = 2'b01;
+                        PARTITA = 2'b01;
+                        stato_prossimo = 3'b000; // inizio
+                    end
+                end else begin // mosse non valide
+                    MANCHE = 2'b00;
+                    PARTITA = 2'b00;
+                    stato_prossimo = 3'b111; // v2++
                 end
             end
         endcase
+
+        $display("PARTITA : %b\n", PARTITA);
     end
 
     always @(MANCHE) begin : RIENTRI_DATAPATH
+
         case(MANCHE)
 
             2'b01: begin // CASO MANCHE VINTA DA 1
@@ -476,10 +456,10 @@ module MorraCinese (
 
             2'b11: begin // CASO MANCHE PAREGGIATA
                 // AGGIORNO MOSSA_PREC
-                MOSSA_PREC = 2'b11;
+                MOSSA_PREC = 2'b00;
 
                 // AGGIORNO VINCITORE_PREC
-                VINCITORE_PREC = 2'b11;
+                VINCITORE_PREC = 2'b00;
 
                 // AUMENTO COUNT
                 COUNT = COUNT + 5'b00001;
