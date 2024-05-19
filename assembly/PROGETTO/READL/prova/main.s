@@ -1,9 +1,6 @@
 # file main
 .section .data
 
-str:
-    .ascii "10,9,121,2\n"
-
 stackI:
     .long 0
 
@@ -22,24 +19,37 @@ _start:
     xorl %ebx, %ebx
     xorl %ecx, %ecx
 
-    movl %esp, stackI
+    movl %esp, stackI # salvo lo stack pointer, ma lo alzo di 1 altrimenti salterei l'elemento in cima allo stack
+    subl $4, stackI
 
-    addl $12, %esp
-
-while:
-    cmpl stackI, %esp
-    je finish
+    # POP e PUSH dall'altro in basso
     popl %eax
     call printfd
     pushl %eax
-    subl $4, %esp
-    jmp while
+    addl $4, %esp
 
-finish:
-    # movl stackI, %esp
-    jmp exit
+    popl %eax
+    call printfd
+    pushl %eax
+    addl $4, %esp
+
+    popl %eax
+    call printfd
+    pushl %eax
+    addl $4, %esp
+
+    # jmp while
 
 exit:
+    movl stackI, %esp # rimetto lo stack pointer originale
+    
+    popl %eax
+    call printfd
+    popl %eax
+    call printfd
+    popl %eax
+    call printfd
+
     movl $1, %eax 
     xorl %ebx, %ebx # codice di uscita (0)
     int $0x80

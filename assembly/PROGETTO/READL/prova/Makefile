@@ -8,7 +8,7 @@ LD= ld -m elf_i386 # linker di assembly
 FLAGS= -gstabs # parametri che vengono passati al compilatore per certi comportamenti
 # in questo caso, abilitiamo il tool di debug
 
-OBJ= main.o readl.o printfd.o # dichiaro file oggetto
+OBJ= main.o scanfd.o printfd.o printEsp.o # dichiaro file oggetto
 
 # il mio target e' l'eseguibile
 # $(..) indica il valore della variabile
@@ -19,8 +19,12 @@ $(EXE):  $(OBJ) # perche' esista l'exe deve esistere il file oggetto
 main.o: main.s
 	$(AS) $(FLAGS) -o main.o main.s
 
-readl.o: readl.s
-	$(AS) $(FLAGS) -o readl.o readl.s
+scanfd.o: scanfd.s
+	$(AS) $(FLAGS) -o scanfd.o scanfd.s
+
+printEsp.o: printEsp.s
+	$(AS) $(FLAGS) -o printEsp.o printEsp.s
+
 
 printfd.o: printfd.s
 	$(AS) $(FLAGS) -o printfd.o printfd.s
