@@ -1,6 +1,9 @@
 # file main
 .section .data
 
+stri:
+    .ascii "9,4,3,2\n"
+
 stackI:
     .long 0
 
@@ -8,7 +11,7 @@ stackI:
     .global _start
 
 _start:
-    movl $1, %eax
+    leal stri, %eax
     movl $2, %ebx
     movl $3, %ecx
     pushl %eax
