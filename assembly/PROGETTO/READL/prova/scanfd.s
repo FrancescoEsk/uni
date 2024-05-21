@@ -1,27 +1,11 @@
 # l'indirizzo della stringa da convertire deve essere 
 # stato caricato nel registro EAX
-
-.section .data
-
-num_str:   # variabile STRINGA per numero letto da tastiera
-.ascii "0000"
-num_str_len:
-.long . - num_str
-
 .section .text
 .global scanfd
 
 .type scanfd, @function 
 
-scanfd:
-  movl $3, %eax
-  movl $1, %ebx
-  leal num_str, %ecx
-  movl num_str_len, %edx
-  incl %edx
-  int $0x80
-
-atoi:  				
+scanfd:			
     leal num_str, %esi 		# metto indirizzo della stringa in esi 
 
 
@@ -32,7 +16,6 @@ atoi:
   
 
 ripeti:
-
     movb (%ecx,%esi,1), %bl
 
     cmp $10, %bl             # vedo se e' stato letto il carattere '\n'
