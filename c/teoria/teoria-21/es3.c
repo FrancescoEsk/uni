@@ -8,7 +8,6 @@ implementare funzione 'conta' che riceve due parametri:
 - array b di cui ci viene data la dimensione (come parametro della funzione)
 
 verificare il numero di colonne in cui l'array b compare nella matrice in posizioni contigue
-
 */
 
 int conta(int[N][M], int*, int);
