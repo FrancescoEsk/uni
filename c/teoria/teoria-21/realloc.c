@@ -12,6 +12,8 @@ int main(void){
     scanf("%d", &dim);
     // alloco memoria
     p = (int*) malloc(sizeof(int) * dim);
+    if (p == NULL) // se allocamento fallisce
+        return -1;
     // ottengo valori randomici
     srand(time(NULL));
     for(int i=0; i<dim; i++){
