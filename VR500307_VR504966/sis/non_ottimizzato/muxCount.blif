@@ -1,0 +1,36 @@
+.model muxCount
+.inputs i0 i1 i2 i3 i4 outm1 outm0 INIZIO
+.outputs o4 o3 o2 o1 o0
+
+# costanti
+.subckt zero out=Z
+
+# not ed extend
+.subckt equal2bit a1=outm1 a0=outm0 b1=Z b0=Z out=c
+.subckt not2bit in=c out=d
+.subckt ext1a5 in=d o4=d4 o3=d3 o2=d2 o1=d1 o0=d0
+# sommo output registro + 1 (vale uno solo se manche non vale 00, altrimenti sommerei 0)
+.subckt somma5bit a4=d4 a3=d3 a2=d2 a1=d1 a0=d0 b4=i4 b3=i3 b2=i2 b1=i1 b0=i0 cout=cout s4=e4 s3=e3 s2=e2 s1=e1 s0=e0
+
+.names cout e4 e3 e2 e1 e0 INIZIO o4
+01----0 1
+
+.names cout e4 e3 e2 e1 e0 INIZIO o3
+0-1---0 1
+
+.names cout e4 e3 e2 e1 e0 INIZIO o2
+0--1--0 1
+
+.names cout e4 e3 e2 e1 e0 INIZIO o1
+0---1-0 1
+
+.names cout e4 e3 e2 e1 e0 INIZIO o0
+0----10 1
+
+.search somma5bit.blif
+.search ext1a5.blif
+.search not2bit.blif
+.search zero.blif
+.search equal2bit.blif
+
+.end

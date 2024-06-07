@@ -1,0 +1,17 @@
+.model equal5bit
+.inputs a4 a3 a2 a1 a0 b4 b3 b2 b1 b0
+.outputs out
+
+.subckt equal2bit a1=a1 a0=a0 b1=b1 b0=b0 out=c0
+.subckt equal2bit a1=a3 a0=a2 b1=b3 b0=b2 out=c1
+
+.search equal2bit.blif
+
+# confronto i primi 4 bit dei due numeri
+# i due bit c0 e c1 devono valere 1, poi a4 e b4 (ultimo bit non ancora controllato) devono combaciare
+
+.names a4 b4 c1 c0 out 
+0011 1
+1111 1
+
+.end

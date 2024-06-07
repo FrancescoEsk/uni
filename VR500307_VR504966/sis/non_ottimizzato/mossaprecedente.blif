@@ -1,0 +1,9 @@
+.model mossaprecedente
+.inputs i1 i0
+.outputs o1 o0
+
+.subckt registro2bit i1=i1 i0=i0 o1=o1 o0=o0
+
+.search registro2bit.blif
+
+.end

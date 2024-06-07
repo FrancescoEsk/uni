@@ -1,0 +1,21 @@
+.model muxVinci
+.inputs VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 outm1 outm0 INIZIO
+.outputs o1 o0
+
+
+# 10 00 0 | 10
+# 01 00 0 | 01
+# 11 00 0 | 11
+# -- 10 0 | 10
+# -- 01 0 | 01
+# -- 11 0 | 11
+
+.names VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 outm1 outm0 INIZIO o1
+1-000 1
+--1-0 1
+
+.names VINCITORE_PRECEDENTE1 VINCITORE_PRECEDENTE0 outm1 outm0 INIZIO o0
+-1000 1
+---10 1
+
+.end

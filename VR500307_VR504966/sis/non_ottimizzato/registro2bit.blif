@@ -1,0 +1,10 @@
+.model registro2bit
+.inputs i1 i0
+.outputs o1 o0
+
+.subckt registro1bit a=i0 out=o0
+.subckt registro1bit a=i1 out=o1
+
+.search registro1bit.blif
+
+.end
