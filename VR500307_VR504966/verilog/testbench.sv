@@ -43,9 +43,9 @@ module MorraCinese_tb;
             
         #10;
         $fdisplay(file2, "Outputs: %b %b %b %b", manche[1], manche[0],partita[1],partita[0]);
-        
         $display("Manche: %b - Partita: %b", manche, partita);
 
+        /*
         // vince 2
         inizia = 0;
         primo = 2'b01;  
@@ -126,7 +126,16 @@ module MorraCinese_tb;
         #10;
         $display("Mosse giocate %b-%b // Manche: %b - Partita: %b", primo, secondo, manche, partita);
         $fdisplay(file2, "Outputs: %b %b %b %b", manche[1], manche[0],partita[1],partita[0]);
-        /*
+
+        // vince 1
+        inizia = 0;
+        primo = 2'b10;  
+        secondo = 2'b01; 
+        $fdisplay(file1, "simulate %b %b %b %b %b", primo[1], primo[0],secondo[1],secondo[0],inizia);
+        #10;
+        $display("Mosse giocate %b-%b // Manche: %b - Partita: %b", primo, secondo, manche, partita);
+        $fdisplay(file2, "Outputs: %b %b %b %b", manche[1], manche[0],partita[1],partita[0]);
+        */
         // Continua la partita
         for (i = 0; i < 4 ; i = i + 1) begin 
             for (j = 0; j < 4 ; j = j + 1) begin
@@ -157,7 +166,6 @@ module MorraCinese_tb;
         
             end 
         end
-        */
         
         $fdisplay(file1, "quit");
         $fclose(file1);

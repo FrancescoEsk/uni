@@ -25,6 +25,7 @@ module MorraCinese (
 
     // bit locale
     bit m; // usato per calcolare se la manche la vince 1 oppure no
+    bit aggiornaRegistriPrec = 1'b0;
 
     always @(posedge clk) begin // INIZIO / RESET
         if (INIZIO == 1'b1) begin
@@ -41,33 +42,37 @@ module MorraCinese (
             NO_VALID = 1'b0;
 
         end else begin
-            $display("\nStato: %b  // Stato prossimo: %b", stato, stato_prossimo);
             // se non ho reset, aggiorno lo stato
             stato = stato_prossimo; 
-            $display("Mossa P: %b , Vincitore P: %b , Count: %b , Max: %b ", MOSSA_PREC, VINCITORE_PREC, COUNT, MAX);
-            $display("m: %b , Cmin: %b , Cmax: %b , Nv: %b \n", m, COUNT_MIN, COUNT_MAX, NO_VALID);
         end
     end
 
-    always @(PRIMO, SECONDO) begin : DATAPATH
+    always @(negedge clk) begin : DATAPATH
         // calcolo NO_VALID
         case(VINCITORE_PREC)
+            default: begin
+                if (PRIMO == 2'b00 || SECONDO == 2'b00)
+                    NO_VALID = 1'b1;
+                else
+                    NO_VALID = 1'b0;
+            end
             2'b01: begin // controllo PRIMO
-                if (PRIMO == 2'b00 || SECONDO == 2'b00 || PRIMO == MOSSA_PREC ) 
+                if (PRIMO == MOSSA_PREC || PRIMO == 2'b00 || SECONDO == 2'b00) begin
                     NO_VALID = 1'b1;
+                end else begin
+                    NO_VALID = 1'b0;
+                end
             end
-            2'b10: begin // controllo SECONDO
-                if (PRIMO == 2'b00 || SECONDO == 2'b00 || SECONDO == MOSSA_PREC ) 
-                    NO_VALID = 1'b1;
-            end
-            default: // LASCIO PASSARE
-                NO_VALID = 1'b0;
-        endcase
 
-        if ( PRIMO == 2'b00 || SECONDO == 2'b00 ) 
-            NO_VALID = 1'b1;
-        else
-            NO_VALID = 1'b0;
+            2'b10:  begin// controllo SECONDO
+                if (SECONDO == MOSSA_PREC || PRIMO == 2'b00 || SECONDO == 2'b00) begin
+                    NO_VALID = 1'b1;
+                end else begin
+                    NO_VALID = 1'b0;
+                end
+            end
+        endcase
+            
         // calcolo COUNT_MIN
         if(5'b00011 >= COUNT) // se count minore di 3 (4 partite)
             COUNT_MIN = 1'b1; 
@@ -81,7 +86,7 @@ module MorraCinese (
             COUNT_MAX = 1'b0;
     end
 
-    always @(stato, PRIMO, SECONDO, INIZIO, NO_VALID, COUNT_MIN, COUNT_MAX) begin : FSM
+    always @(negedge clk) begin : FSM
         /*
         # CODIFICA DEGLI STATI
         INIZIA 000 # Stato di INIZIA
@@ -123,35 +128,31 @@ module MorraCinese (
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
                     stato_prossimo = 3'b000; // inizio
-                end else if (!NO_VALID) begin // mosse valide
+                end else if (NO_VALID == 1'b0) begin // mosse valide
                     if(COUNT_MAX) begin // partita da finire
                         if(PRIMO == SECONDO) begin
                             MANCHE = 2'b11;
                             PARTITA = 2'b11;
                             stato_prossimo = 3'b000; // inizio
                         end else if (m) begin
-                            MANCHE = 2'b10;
-                            PARTITA = 2'b10;
-                            stato_prossimo = 3'b000; // inizio
-                        end else begin
                             MANCHE = 2'b01;
                             PARTITA = 2'b01;
+                            stato_prossimo = 3'b000; // inizio
+                        end else begin
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b10;
                             stato_prossimo = 3'b000; // inizio
                         end
                     end else begin // partita da non finire
                         PARTITA = 2'b00;
                         if(PRIMO == SECONDO) begin
                             MANCHE = 2'b11;
-                            // PARTITA = 2'b00;
                             stato_prossimo = 3'b001; // pareggio
                         end else if (m) begin
-                            MANCHE = 2'b10;
-                            // PARTITA = 2'b00;
+                            MANCHE = 2'b01;
                             stato_prossimo = 3'b010; // v1
                         end else begin
-                            $display("DIOCANE");
-                            MANCHE = 2'b01;
-                            // PARTITA = 2'b00;
+                            MANCHE = 2'b10;
                             stato_prossimo = 3'b101; // v2
                         end
                     end
@@ -168,18 +169,18 @@ module MorraCinese (
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
                     stato_prossimo = 3'b000; // inizio
-                end else if (!NO_VALID) begin // mosse valide
+                end else if (NO_VALID == 1'b0) begin // mosse valide
                     if(COUNT_MAX) begin // partita da finire
                         if(PRIMO == SECONDO) begin
                             MANCHE = 2'b11;
-                            PARTITA = 2'b10;
+                            PARTITA = 2'b01;
                             stato_prossimo = 3'b000; // inizio
                         end else if (m) begin
-                            MANCHE = 2'b10;
-                            PARTITA = 2'b10;
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b01;
                             stato_prossimo = 3'b000; // inizio
                         end else begin
-                            MANCHE = 2'b01;
+                            MANCHE = 2'b10;
                             PARTITA = 2'b11;
                             stato_prossimo = 3'b000; // inizio
                         end
@@ -190,16 +191,16 @@ module MorraCinese (
                             stato_prossimo = 3'b010; // v1
                         end else if (m) begin
                             if (COUNT_MIN) begin
-                                MANCHE = 2'b10;
+                                MANCHE = 2'b01;
                                 PARTITA = 2'b00;
                                 stato_prossimo = 3'b011; // v1+
                             end else begin
-                                MANCHE = 2'b10;
-                                PARTITA = 2'b10;
+                                MANCHE = 2'b01;
+                                PARTITA = 2'b01;
                                 stato_prossimo = 3'b000; // inizio
                             end
                         end else begin
-                            MANCHE = 2'b01;
+                            MANCHE = 2'b10;
                             PARTITA = 2'b00;
                             stato_prossimo = 3'b001; // pareggio
                         end
@@ -217,19 +218,19 @@ module MorraCinese (
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
                     stato_prossimo = 3'b000; // inizio
-                end else if (!NO_VALID) begin // mosse valide
+                end else if (NO_VALID == 1'b0) begin // mosse valide
                     if(COUNT_MAX) begin // partita da finire
                         if(PRIMO == SECONDO) begin
                             MANCHE = 2'b11;
-                            PARTITA = 2'b10;
+                            PARTITA = 2'b01;
                             stato_prossimo = 3'b000; // inizio
                         end else if (m) begin
-                            MANCHE = 2'b10;
-                            PARTITA = 2'b10;
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b01;
                             stato_prossimo = 3'b000; // inizio
                         end else begin
-                            MANCHE = 2'b01;
-                            PARTITA = 2'b10;
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b01;
                             stato_prossimo = 3'b000; // inizio
                         end
                     end else begin // partita da non finire
@@ -240,21 +241,21 @@ module MorraCinese (
                                 stato_prossimo = 3'b011; // v1+
                             end else begin
                                 MANCHE = 2'b11;
-                                PARTITA = 2'b10;
+                                PARTITA = 2'b01;
                                 stato_prossimo = 3'b000; // inizio
                             end
                         end else if (m) begin
                             if (COUNT_MIN) begin
-                                MANCHE = 2'b10;
+                                MANCHE = 2'b01;
                                 PARTITA = 2'b00;
                                 stato_prossimo = 3'b100; // v1++
                             end else begin
-                                MANCHE = 2'b10;
-                                PARTITA = 2'b10;
+                                MANCHE = 2'b01;
+                                PARTITA = 2'b01;
                                 stato_prossimo = 3'b000; // inizio
                             end
                         end else begin
-                            MANCHE = 2'b01;
+                            MANCHE = 2'b10;
                             PARTITA = 2'b00;
                             stato_prossimo = 3'b010; // v1
                         end
@@ -272,18 +273,18 @@ module MorraCinese (
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
                     stato_prossimo = 3'b000; // inizio
-                end else if (!NO_VALID) begin // mosse valide
+                end else if (NO_VALID == 1'b0) begin // mosse valide
                     if(PRIMO == SECONDO) begin
                         MANCHE = 2'b11;
-                        PARTITA = 2'b10;
+                        PARTITA = 2'b01;
                         stato_prossimo = 3'b000; // inizio
                     end else if (m) begin
-                        MANCHE = 2'b10;
-                        PARTITA = 2'b10;
+                        MANCHE = 2'b01;
+                        PARTITA = 2'b01;
                         stato_prossimo = 3'b000; // inizio
                     end else begin
-                        MANCHE = 2'b01;
-                        PARTITA = 2'b10;
+                        MANCHE = 2'b10;
+                        PARTITA = 2'b01;
                         stato_prossimo = 3'b000; // inizio
                     end
                 end else begin // mosse non valide
@@ -299,19 +300,19 @@ module MorraCinese (
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
                     stato_prossimo = 3'b000; // inizio
-                end else if (!NO_VALID) begin // mosse valide
+                end else if (NO_VALID == 1'b0) begin // mosse valide
                     if(COUNT_MAX) begin // partita da finire
                         if(PRIMO == SECONDO) begin
                             MANCHE = 2'b11;
-                            PARTITA = 2'b01;
+                            PARTITA = 2'b10;
                             stato_prossimo = 3'b000; // inizio
                         end else if (m) begin
-                            MANCHE = 2'b10;
+                            MANCHE = 2'b01;
                             PARTITA = 2'b11;
                             stato_prossimo = 3'b000; // inizio
                         end else begin
-                            MANCHE = 2'b01;
-                            PARTITA = 2'b01;
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b10;
                             stato_prossimo = 3'b000; // inizio
                         end
                     end else begin // partita da non finire
@@ -321,16 +322,16 @@ module MorraCinese (
                             stato_prossimo = 3'b101; // v2
                         end else if (!m) begin
                             if (COUNT_MIN) begin
-                                MANCHE = 2'b01;
+                                MANCHE = 2'b10;
                                 PARTITA = 2'b00;
                                 stato_prossimo = 3'b110; // v2+
                             end else begin
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b01;
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b10;
                                 stato_prossimo = 3'b000; // inizio
                             end
                         end else begin
-                            MANCHE = 2'b10;
+                            MANCHE = 2'b01;
                             PARTITA = 2'b00;
                             stato_prossimo = 3'b001; // pareggio
                         end
@@ -348,19 +349,19 @@ module MorraCinese (
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
                     stato_prossimo = 3'b000; // inizio
-                end else if (!NO_VALID) begin // mosse valide
+                end else if (NO_VALID == 1'b0) begin // mosse valide
                     if(COUNT_MAX) begin // partita da finire
                         if(PRIMO == SECONDO) begin
                             MANCHE = 2'b11;
-                            PARTITA = 2'b01;
+                            PARTITA = 2'b10;
                             stato_prossimo = 3'b000; // inizio
                         end else if (m) begin
-                            MANCHE = 2'b10;
-                            PARTITA = 2'b01;
+                            MANCHE = 2'b01;
+                            PARTITA = 2'b10;
                             stato_prossimo = 3'b000; // inizio
                         end else begin
-                            MANCHE = 2'b01;
-                            PARTITA = 2'b01;
+                            MANCHE = 2'b10;
+                            PARTITA = 2'b10;
                             stato_prossimo = 3'b000; // inizio
                         end
                     end else begin // partita da non finire
@@ -371,21 +372,21 @@ module MorraCinese (
                                 stato_prossimo = 3'b110; // v2+
                             end else begin
                                 MANCHE = 2'b11;
-                                PARTITA = 2'b01;
+                                PARTITA = 2'b10;
                                 stato_prossimo = 3'b000; // inizio
                             end
                         end else if (!m) begin
                             if (COUNT_MIN) begin
-                                MANCHE = 2'b01;
+                                MANCHE = 2'b10;
                                 PARTITA = 2'b00;
                                 stato_prossimo = 3'b111; // v2++
                             end else begin
-                                MANCHE = 2'b01;
-                                PARTITA = 2'b01;
+                                MANCHE = 2'b10;
+                                PARTITA = 2'b10;
                                 stato_prossimo = 3'b000; // inizio
                             end
                         end else begin
-                            MANCHE = 2'b10;
+                            MANCHE = 2'b01;
                             PARTITA = 2'b00;
                             stato_prossimo = 3'b101; // v2
                         end
@@ -403,18 +404,18 @@ module MorraCinese (
                     MANCHE = 2'b00;
                     PARTITA = 2'b00;
                     stato_prossimo = 3'b000; // inizio
-                end else if (!NO_VALID) begin // mosse valide
+                end else if (NO_VALID == 1'b0) begin // mosse valide
                     if(PRIMO == SECONDO) begin
                         MANCHE = 2'b11;
-                        PARTITA = 2'b01;
+                        PARTITA = 2'b10;
                         stato_prossimo = 3'b000; // inizio
                     end else if (m) begin
-                        MANCHE = 2'b10;
-                        PARTITA = 2'b01;
+                        MANCHE = 2'b01;
+                        PARTITA = 2'b10;
                         stato_prossimo = 3'b000; // inizio
                     end else begin
-                        MANCHE = 2'b01;
-                        PARTITA = 2'b01;
+                        MANCHE = 2'b10;
+                        PARTITA = 2'b10;
                         stato_prossimo = 3'b000; // inizio
                     end
                 end else begin // mosse non valide
@@ -425,11 +426,13 @@ module MorraCinese (
             end
         endcase
 
-        $display("PARTITA : %b\n", PARTITA);
+        if(!aggiornaRegistriPrec)
+            aggiornaRegistriPrec = 1'b1;
+        else
+            aggiornaRegistriPrec = 1'b0;
     end
 
-    always @(MANCHE) begin : RIENTRI_DATAPATH
-
+    always @(aggiornaRegistriPrec) begin : RIENTRI_DATAPATH
         case(MANCHE)
 
             2'b01: begin // CASO MANCHE VINTA DA 1
@@ -463,6 +466,11 @@ module MorraCinese (
 
                 // AUMENTO COUNT
                 COUNT = COUNT + 5'b00001;
+            end
+
+            2'b00: begin
+                VINCITORE_PREC = VINCITORE_PREC;
+                MOSSA_PREC = MOSSA_PREC;
             end
 
         endcase
