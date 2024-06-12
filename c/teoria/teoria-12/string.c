@@ -16,11 +16,11 @@ libreria per manipolare le stringhe   <string.h>
 */
 
 int main(void){
-    char v[DIM+1], v2[DIM+1]; // aggiungere un posto in più per il \0 automatico
+    char v[DIM+1] = "ABCD", v2[DIM+1] = "123"; // aggiungere un posto in più per il \0 automatico
     int len, cmp;
-    scanf("%s", v);
-    gets(v2);
+
     len = strlen(v);
+    printf("%d", len);
     cmp = strcmp(v, v2);
     strcpy(v, v2);
     return 0;

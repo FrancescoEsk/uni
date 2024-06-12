@@ -32,6 +32,16 @@ int main() {
  * Crea e ritorna un nuovo nodo.
  */
 struct length_t *create_length(int value) {
+    struct length_t *lista;
+    lista = (struct length_t*) malloc(sizeof(struct length_t));
+    if(lista != NULL){
+        lista->value = value;
+        lista->next = NULL;
+    } else {
+        printf("Memoria piena\n");
+        return NULL;
+    }
+    return lista;
 }
 
 /**
@@ -39,6 +49,18 @@ struct length_t *create_length(int value) {
  * Ipotesi: head è diverso da NULL
  */
 void append_length(struct length_t *head, int value) {
+    if(head != NULL){
+        struct length_t *tmp, *new;
+        for(tmp = head; tmp->next != NULL; tmp = tmp->next);
+        new = (struct length_t*) malloc(sizeof(struct length_t));
+        if(new != NULL){
+            new->value = value;
+            new->next = NULL;
+            tmp->next = new;
+        } else {
+            printf("Memoria piena\n");
+        }
+    }
 }
 
 /**
@@ -46,10 +68,25 @@ void append_length(struct length_t *head, int value) {
  * Quindi, dopo l'ultimo nodo non va posto sep.
  */
 void print_list(struct length_t *head, char sep) {
+    int check=0;
+    while(head != NULL){
+        if(!check)
+            printf("%d", head->value);
+        else
+            printf("%c%d", sep, head->value);
+        check = 1;
+        head = head->next;
+    }
 }
 
 /**
  * Ritorna la somma delle lunghezze dei nodi della lista.
  */
 int list_length(struct length_t *head) {
+    int count=0;
+    while(head != NULL){
+        count += head->value;
+        head = head->next;
+    }
+    return count;
 }
