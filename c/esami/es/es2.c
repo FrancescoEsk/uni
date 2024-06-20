@@ -40,22 +40,19 @@ struct mychar_t* binary_to_mycharlist(char *s){
     }
 
     head = lista;
-    int count=0, x=0;
-    char str[9], ris;
+    int x=0;
+    char str[8], ris;
 
     for(int i=0; s[i] != '\0'; i++){
         str[x] = s[i];
-        count++;
-        if(count == 8){
-            printf("%s", str);
+        if(x == 7){
             ris = 0;
+            int pow=1;
             while(x != -1){
-                int pow=1;
-                ris += str[x] * pow;
+                ris += (str[x]-48) * pow; // sottraggo 48 dal char, per ottenere la cifra
                 pow *= 2;
+                x--;
             }
-            count = 0;
-
             // aggiungo il ris alla lista
             if(lista->val){
                 new = (struct mychar_t*) malloc(sizeof(struct mychar_t));
@@ -73,9 +70,8 @@ struct mychar_t* binary_to_mycharlist(char *s){
                 lista->next = NULL;
             }
 
-        } else {
-            x++;
         }
+        x++;
     }
     return head;
 }
