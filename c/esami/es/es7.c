@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define DIM 15
 /*
 Completare il file ESI 21062023 A 3.c definendo il sottoprogramma crealista che riceve in ingresso una stringa
 (chiamata str) e un carattere (chiamato sep). La stringa str `e senz’altro composta da pi`u sequenze di cifre
@@ -11,7 +12,7 @@ stringa str. Non `e consentito modificare la stringa di ingresso. Esempio: ingre
 */
 
 struct node_t{
-    char* val;
+    int val;
     struct node_t *next;
 };
 
@@ -20,7 +21,8 @@ struct node_t* appendlista(struct node_t*, char*);
 void printlista(struct node_t*);
 
 int main(void){
-    
+    struct node_t *lista = crealista("132,34,9121,1,29", ',');
+    printlista(lista);
     return 0;
 }
 
@@ -29,28 +31,49 @@ struct node_t* appendlista(struct node_t *lista, char *s){
     new = (struct node_t*) malloc(sizeof(struct node_t));
 
     if(new == NULL) return NULL;
-    new->val = s;
+    int len=0, pow=1, c=0;
+    for(int i=0; s[i] != '\0'; i++) len++;
+
+    for(int i=len-1; i>=0; i--){
+        c += (s[i]-48) * pow;
+        pow *= 10;
+    }
+
+    new->val = c;
     new->next = NULL;
 
     if(lista == NULL) return new;
-
+    
     for(tmp = lista; tmp->next != NULL; tmp = tmp->next);
     tmp->next = new;
     return lista;
 }
 
 struct node_t* crealista(char *str, char c){
-    struct node_t *lista, *head;
-    int count=0;
+    struct node_t *lista = NULL, *head = NULL;
+    int i=0, a=0;
+    char s[DIM];
 
-    for(int i=0; str[i] != '\0'; i++){
-        if(str[i] == c){
-            
+    while(str[i] != '\0'){
+        if(str[i] == c || str[i+1] == '\0'){
+            if (str[i+1] == '\0'){
+                s[a] = str[i];
+                a++;
+            }
+            s[a] = '\0';
+            lista = appendlista(lista, s);
+            if(head == NULL) head = lista;
+
+            for(int b=0; b<a+1; b++) s[b] = 0;
+
+            a=-1;
         } else {
-            count++;
+            s[a] = str[i];
         }
+        i++;
+        a++;
     }
-    
+    return head;
 }
 
 void printlista(struct node_t *lista){
